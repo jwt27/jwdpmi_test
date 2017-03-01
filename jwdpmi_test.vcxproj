@@ -92,8 +92,8 @@
     <RemoteReBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -B -j24"</RemoteReBuildCommandLine>
     <RemoteCleanCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh clean"</RemoteCleanCommandLine>
     <NMakeForcedIncludes>$(ProjectDir)\tools\intellisense.h</NMakeForcedIncludes>
-    <AdditionalOptions>/u /X</AdditionalOptions>
-    <NMakeIncludeSearchPath>$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\5.2.0\include\c++;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\5.2.0\include\c++\i586-pc-msdosdjgpp;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\5.2.0\include\c++\backward;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\5.2.0\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\5.2.0\include-fixed;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\sys-include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\include</NMakeIncludeSearchPath>
+    <AdditionalOptions>/u /X /std:c++latest /experimental</AdditionalOptions>
+    <NMakeIncludeSearchPath>$(ProjectDir)\lib\libjwdpmi\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\i586-pc-msdosdjgpp;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\backward;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include-fixed;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\sys-include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\include;$(ProjectDir)\include</NMakeIncludeSearchPath>
     <RemoteBuildOutputs>
     </RemoteBuildOutputs>
   </PropertyGroup>
@@ -106,16 +106,24 @@
     <RemoteReBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -B -j24"</RemoteReBuildCommandLine>
     <RemoteCleanCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh clean"</RemoteCleanCommandLine>
     <NMakeForcedIncludes>$(ProjectDir)\tools\intellisense.h</NMakeForcedIncludes>
-    <AdditionalOptions>/u /X</AdditionalOptions>
-    <NMakeIncludeSearchPath>$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\5.2.0\include\c++;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\5.2.0\include\c++\i586-pc-msdosdjgpp;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\5.2.0\include\c++\backward;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\5.2.0\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\5.2.0\include-fixed;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\sys-include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\include</NMakeIncludeSearchPath>
+    <AdditionalOptions>/u /X /std:c++latest /experimental</AdditionalOptions>
+    <NMakeIncludeSearchPath>$(ProjectDir)\lib\libjwdpmi\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\i586-pc-msdosdjgpp;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\backward;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include-fixed;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\sys-include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\include;$(ProjectDir)\include</NMakeIncludeSearchPath>
     <RemoteBuildOutputs>
     </RemoteBuildOutputs>
   </PropertyGroup>
   <ItemGroup>
+    <ClCompile Include="lib\libjwdpmi\src\alloc.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\debug.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\dpmi.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\dpmi_error.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\gdb_stub.c" />
+    <ClCompile Include="lib\libjwdpmi\src\irq.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\irq_mask.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\main.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="lib\libjwdpmi\makefile" />
     <None Include="makefile" />
     <None Include="make_vs.sh" />
     <None Include="tools\mount_img.bat" />
@@ -123,6 +131,23 @@
     <None Include="tools\umount_img.bat" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="lib\libjwdpmi\include\debug.h" />
+    <ClInclude Include="lib\libjwdpmi\include\function.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\alloc.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\debug.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\dpmi.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\cpu_exception.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\dpmi_error.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\irq.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\irq_check.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\irq_mask.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\lock.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\io\detail\rs232.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\io\ioport.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\io\rs232.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\split_stdint.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\typedef.h" />
+    <ClInclude Include="lib\libjwdpmi\jwdpmi_config.h" />
     <ClInclude Include="tools\intellisense.h" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">

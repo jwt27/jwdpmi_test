@@ -4,7 +4,7 @@ CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
 CXXFLAGS += -O3 -flto=12 -flto-odr-type-merging
-CXXFLAGS += -std=gnu++14
+CXXFLAGS += -std=gnu++17
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += -Wno-attributes
 # CXXFLAGS += -Wdisabled-optimization -Winline 
@@ -33,8 +33,13 @@ OBJDIR := obj
 SRC := $(wildcard $(SRCDIR)/*.cpp)
 OBJ := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 DEP := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.d)
-OBJ_ASM := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.asm)
 VPATH := .:$(SRCDIR)
+
+ifeq ($(MAKECMDGOALS),vs)
+    PIPECMD := 2>&1 | gcc2vs
+else 
+    PIPECMD :=
+endif
 
 .PHONY: all clean vs 
 
@@ -48,7 +53,7 @@ vs: all
 	$(CXX) -dM -E $(CXXFLAGS) _temp.cpp > tools/gcc_defines.h
 	@rm _temp.*
 
-export CC CXX CXXFLAGS
+export CC CXX CXXFLAGS PIPECMD
 libjwdpmi:
 	$(MAKE) -C lib/libjwdpmi/
 
@@ -59,15 +64,12 @@ $(OBJDIR):
 	-mkdir $(OBJDIR)
 
 $(OUTDIR)/$(OUTPUT): $(OBJ) libjwdpmi
-	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LDFLAGS) $(LIBS)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LDFLAGS) $(LIBS) $(PIPECMD)
 	objdump -M intel-mnemonic --insn-width=10 -C -w -d $@ > $(OUTDIR)/main.asm
 #	stubedit $@ dpmi=hdpmi32.exe
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -o $@ -MF $(@:.o=.d) $(INCLUDE) -c $<
-
-$(OBJDIR)/%.asm: $(OBJDIR)/%.o
-	objdump -M intel-mnemonic -C -dr -l -g -t -S $< > $@
+	$(CXX) $(CXXFLAGS) -o $@ -MF $(@:.o=.d) $(INCLUDE) -c $< $(PIPECMD)
 
 ifneq ($(MAKECMDGOALS),clean)
   -include $(DEP)

@@ -48,13 +48,13 @@
 #include "gcc_defines.h"
 
 // These were defined in gcc_defines, redefine them to be intellisense compatible:
-//#define _SIZE_T
 #undef __SIZE_TYPE__
 #define __SIZE_TYPE__ size_t
-#define size_t size_t
+using size_t = size_t;  // yes...
 
 // GCC extensions:
 
 #define __float128 long double
+#define __null 0
 
 #endif
