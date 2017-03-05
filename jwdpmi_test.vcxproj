@@ -120,6 +120,7 @@
     <ClCompile Include="lib\libjwdpmi\src\irq.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\irq_mask.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\main.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\rs232.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -135,6 +136,7 @@
     <ClInclude Include="lib\libjwdpmi\include\function.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\alloc.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\debug.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\detail\irq.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\dpmi.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\cpu_exception.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\dpmi_error.h" />
@@ -148,6 +150,7 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\split_stdint.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\typedef.h" />
     <ClInclude Include="lib\libjwdpmi\jwdpmi_config.h" />
+    <ClInclude Include="lib\libjwdpmi\jwdpmi_config_default.h" />
     <ClInclude Include="tools\intellisense.h" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
