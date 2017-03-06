@@ -3,7 +3,8 @@ CXX := g++
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
-CXXFLAGS += -O3 -flto=24 -flto-odr-type-merging
+CXXFLAGS += -O3 #-flto=24 -flto-odr-type-merging
+CXXFLAGS += -march=pentium-mmx
 CXXFLAGS += -std=gnu++17
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += -Wno-attributes
@@ -37,7 +38,7 @@ OBJ := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 DEP := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.d)
 VPATH := .:$(SRCDIR)
 
-ifeq ($(MAKECMDGOALS),vs)
+ifneq (,$findstr(vs,$(MAKECMDGOALS)))
     PIPECMD := 2>&1 | gcc2vs
 else 
     PIPECMD :=
@@ -48,9 +49,9 @@ endif
 all: $(OBJDIR) $(OUTDIR) $(OUTDIR)/$(OUTPUT)
 
 clean:
-	-rm -rf obj/*
+	-rm -rf obj/* bin/*
     
-vs: all
+vs:
 	@echo "void main(){}" > _temp.cpp
 	$(CXX) -dM -E $(CXXFLAGS) _temp.cpp > tools/gcc_defines.h
 	@rm _temp.*
@@ -67,6 +68,7 @@ $(OBJDIR):
 
 $(OUTDIR)/$(OUTPUT): $(OBJ) libjwdpmi
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LDFLAGS) $(LIBS) $(PIPECMD)
+        cp lib/libjwdpmi/jwdpmi_config.h lib/libjwdpmi/jwdpmi_config_default.h
 	objdump -M intel-mnemonic --insn-width=10 -C -w -d $@ > $(OUTDIR)/main.asm
 #	stubedit $@ dpmi=hdpmi32.exe
 

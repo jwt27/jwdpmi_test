@@ -88,8 +88,8 @@
     <OutDir>$(ProjectDir)bin\</OutDir>
     <IntDir>$(ProjectDir)obj\</IntDir>
     <SourcesToCopyRemotelyOverride />
-    <RemoteBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -j24"</RemoteBuildCommandLine>
-    <RemoteReBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -B -j24"</RemoteReBuildCommandLine>
+    <RemoteBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -j24 all"</RemoteBuildCommandLine>
+    <RemoteReBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -B -j24 all"</RemoteReBuildCommandLine>
     <RemoteCleanCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh clean"</RemoteCleanCommandLine>
     <NMakeForcedIncludes>$(ProjectDir)\tools\intellisense.h</NMakeForcedIncludes>
     <AdditionalOptions>/u /X /std:c++latest /experimental</AdditionalOptions>
@@ -102,8 +102,8 @@
     <OutDir>$(ProjectDir)bin\</OutDir>
     <IntDir>$(ProjectDir)obj\</IntDir>
     <SourcesToCopyRemotelyOverride />
-    <RemoteBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -j24"</RemoteBuildCommandLine>
-    <RemoteReBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -B -j24"</RemoteReBuildCommandLine>
+    <RemoteBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -j24 all"</RemoteBuildCommandLine>
+    <RemoteReBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -B -j24 all"</RemoteReBuildCommandLine>
     <RemoteCleanCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh clean"</RemoteCleanCommandLine>
     <NMakeForcedIncludes>$(ProjectDir)\tools\intellisense.h</NMakeForcedIncludes>
     <AdditionalOptions>/u /X /std:c++latest /experimental</AdditionalOptions>
@@ -113,9 +113,11 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="lib\libjwdpmi\src\alloc.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\cpu_exception.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\debug.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\dpmi.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\dpmi_error.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\fpu.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\gdb_stub.c" />
     <ClCompile Include="lib\libjwdpmi\src\irq.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\irq_mask.cpp" />
@@ -140,6 +142,7 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\dpmi.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\cpu_exception.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\dpmi_error.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\fpu.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\irq.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\irq_check.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\irq_mask.h" />
