@@ -6,6 +6,7 @@
 #include <jw/io/rs232.h>
 #include <jw/dpmi/cpu_exception.h>
 #include <jw/thread/task.h>
+#include <jw/thread/coroutine.h>
 #include <cstdio>
 
 using namespace jw;
@@ -36,18 +37,23 @@ int jwdpmi_main(std::deque<std::string>)
             tmp = count;
         }
     }*/
-    {
-        thread::task<void()> t0 { []()
+
+    thread::coroutine<char()> asdf { [](auto& self) 
+    { 
+        std::string hello { "Hello, World!" };
+        for (auto c : hello)
         {
-            while (true)
-            {
-                //thread::yield();
-                std::cout << "thread! ";
-                throw std::runtime_error("thread failed!");
-            }
-        } };
-        t0->start();
+            self.yield(c);
+        }
+    } };
+
+    asdf->start();
+
+    while (asdf->try_await())
+    {
+        std::cout << asdf->await();
     }
+
 
     dpmi::exception_handler exc03 { 3, [](auto*, bool)
     {
