@@ -123,12 +123,15 @@
     <ClCompile Include="lib\libjwdpmi\src\irq_mask.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\main.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\rs232.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\scheduler.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="lib\libjwdpmi\makefile" />
+    <None Include="lib\libjwdpmi\README.md" />
     <None Include="makefile" />
     <None Include="make_vs.sh" />
+    <None Include="README.md" />
     <None Include="tools\mount_img.bat" />
     <None Include="tools\start_vm.bat" />
     <None Include="tools\umount_img.bat" />
@@ -147,14 +150,24 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\irq_check.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\irq_mask.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\lock.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\enum_struct.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\detail\rs232.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\ioport.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\rs232.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\split_stdint.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\thread\coroutine.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\thread\detail\thread.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\thread\detail\scheduler.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\thread\mutex.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\thread\task.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\thread\thread.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\typedef.h" />
     <ClInclude Include="lib\libjwdpmi\jwdpmi_config.h" />
     <ClInclude Include="lib\libjwdpmi\jwdpmi_config_default.h" />
     <ClInclude Include="tools\intellisense.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="lib\libjwdpmi\COPYING.txt" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <RemotePreBuildEvent>

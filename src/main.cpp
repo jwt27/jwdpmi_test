@@ -5,11 +5,14 @@
 #include <jw/io/ioport.h>
 #include <jw/io/rs232.h>
 #include <jw/dpmi/cpu_exception.h>
+#include <jw/thread/task.h>
 #include <cstdio>
 
 using namespace jw;
 
-int jwdpmi_main(std::deque<std::string> args)
+dpmi::far_ptr32 [[gnu::noinline]] get_ptr() { return dpmi::far_ptr32 { 0x1234, 0x12345678 }; }
+
+int jwdpmi_main(std::deque<std::string>)
 {
     std::cout << "Hello, World!" << std::endl;
 /*
@@ -33,32 +36,70 @@ int jwdpmi_main(std::deque<std::string> args)
             tmp = count;
         }
     }*/
-
-    dpmi::exception_handler exc { 3, [](auto* frame, bool) 
     {
-        volatile float x = 1.0;
-        volatile float y = 1.0;
-        std::cout << x + y;// << std::endl;
-        std::cerr << "!";
-        //frame->fault_address.offset += 1;
+        thread::task<void()> t0 { []()
+        {
+            while (true)
+            {
+                //thread::yield();
+                std::cout << "thread! ";
+                throw std::runtime_error("thread failed!");
+            }
+        } };
+        t0->start();
+    }
+
+    dpmi::exception_handler exc03 { 3, [](auto*, bool)
+    {
+        volatile long double x = 1.0;
+        volatile long double y = 0.5;
+        std::cerr << x + y << '\n';
+        //std::cerr << "!";
         //frame->flags.trap = true;
-        return true; 
+        return true;
+    } };
+
+    dpmi::exception_handler exc0d { 0x0d, [](auto* frame, bool)
+    {
+        std::cerr << "EXC 0D at " << std::hex << frame->fault_address.segment << ':' << frame->fault_address.offset << '\n';
+        std::cerr << "stack  at " << std::hex << frame->stack.segment << ':' << frame->stack.offset << '\n';
+        std::string input;
+        std::cin >> input;
+        //frame->flags.trap = true;
+        return false;
+    } };
+
+    dpmi::exception_handler exc0e { 0x0e, [](auto* frame, bool)
+    {
+        std::cerr << "EXC 0E at " << std::hex << frame->fault_address.segment << ':' << frame->fault_address.offset << '\n';
+        std::cerr << "stack  at " << std::hex << frame->stack.segment << ':' << frame->stack.offset << '\n';
+        std::string input;
+        std::cin >> input;
+        //frame->flags.trap = true;
+        return false;
     } };
 
     std::string input;
     std::cin >> input;
 
-    std::cerr << "!";
     asm("int 3;");
     asm("int 3;");
     asm("int 3;");
-    std::cerr << "!";
-
+    
     io::rs232_config cfg { };
     cfg.set_com_port(io::com1);
     //cfg.flow_control = io::rs232_config::rts_cts;
     io::rs232_stream s { cfg };
     s << "hello world!\r\n" << std::flush;
+    /*
+    while (t0->pending_exceptions()) try
+    {
+        t0->try_await();
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what();
+    } */
     
     while (s.good())
     {
@@ -67,4 +108,6 @@ int jwdpmi_main(std::deque<std::string> args)
         std::cout << "you said: " << input << std::endl;
         if (input.substr(0, 3) == "kys") break;
     }
+
+    return 0;
 }

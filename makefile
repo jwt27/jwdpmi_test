@@ -3,8 +3,8 @@ CXX := g++
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
-CXXFLAGS += -O3 #-flto=24 -flto-odr-type-merging
-CXXFLAGS += -march=pentium-mmx
+CXXFLAGS += -O3 -flto=24 -flto-odr-type-merging
+CXXFLAGS += -march=pentium3
 CXXFLAGS += -std=gnu++17
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += -Wno-attributes
@@ -23,7 +23,7 @@ CXXFLAGS += -mcld
 CXXFLAGS += -mpreferred-stack-boundary=4
 # CXXFLAGS += -save-temps
 
-LDFLAGS += -Wl,-Map,bin/debug.map
+#LDFLAGS += -Wl,-Map,bin/debug.map
 
 INCLUDE := -iquote include -Ilib/libjwdpmi/include
 LIBS := -Llib/libjwdpmi/bin -ljwdpmi
@@ -68,7 +68,7 @@ $(OBJDIR):
 
 $(OUTDIR)/$(OUTPUT): $(OBJ) libjwdpmi
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LDFLAGS) $(LIBS) $(PIPECMD)
-        cp lib/libjwdpmi/jwdpmi_config.h lib/libjwdpmi/jwdpmi_config_default.h
+	cp lib/libjwdpmi/jwdpmi_config.h lib/libjwdpmi/jwdpmi_config_default.h
 	objdump -M intel-mnemonic --insn-width=10 -C -w -d $@ > $(OUTDIR)/main.asm
 #	stubedit $@ dpmi=hdpmi32.exe
 
