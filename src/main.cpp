@@ -37,23 +37,42 @@ int jwdpmi_main(std::deque<std::string>)
             tmp = count;
         }
     }*/
-
-    thread::coroutine<char()> asdf { [](auto& self) 
-    { 
+    thread::coroutine<char()> asdf { [](auto& self)
+    {
         std::string hello { "Hello, World!" };
         for (auto c : hello)
         {
             self.yield(c);
+            throw std::runtime_error("asdf");
         }
     } };
 
     asdf->start();
 
-    while (asdf->try_await())
+    try
     {
-        std::cout << asdf->await();
+        while (asdf->try_await())
+        {
+            std::cout << asdf->await();
+        }
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "exception happened! " << e.what() << '\n';
     }
 
+    {
+        jw::thread::task<void()> orphan { [&]()
+        {
+            try { while(true) thread::yield(); }
+            catch (const std::exception& e) { std::cerr << e.what() << std::endl; }
+        } };
+        orphan->start();
+    }
+
+    thread::yield();
+     
+    
 
     dpmi::exception_handler exc03 { 3, [](auto*, bool)
     {
