@@ -118,11 +118,14 @@
     <ClCompile Include="lib\libjwdpmi\src\dpmi.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\dpmi_error.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\fpu.cpp" />
-    <ClCompile Include="lib\libjwdpmi\src\gdb_stub.c" />
     <ClCompile Include="lib\libjwdpmi\src\irq.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\irq_mask.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\ps2_interface.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\key.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\keyboard.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\main.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\rs232.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\scancode.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\scheduler.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
@@ -151,8 +154,14 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\irq_mask.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\lock.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\enum_struct.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\event.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\detail\rs232.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\ioport.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\io\kb_interface.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\io\ps2_interface.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\io\key.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\io\keyboard.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\io\scancode.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\rs232.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\split_stdint.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\thread\coroutine.h" />

@@ -4,7 +4,7 @@ CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
 CXXFLAGS += -O3 -flto=24 -flto-odr-type-merging
-CXXFLAGS += -march=pentium3
+CXXFLAGS += -march=pentium2
 CXXFLAGS += -std=gnu++17
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += -Wno-attributes
@@ -50,6 +50,7 @@ all: $(OBJDIR) $(OUTDIR) $(OUTDIR)/$(OUTPUT)
 
 clean:
 	-rm -rf obj/* bin/*
+	$(MAKE) clean -C lib/libjwdpmi/
     
 vs:
 	@echo "void main(){}" > _temp.cpp

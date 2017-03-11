@@ -7,6 +7,8 @@
 #include <jw/dpmi/cpu_exception.h>
 #include <jw/thread/task.h>
 #include <jw/thread/coroutine.h>
+#include <jw/io/keyboard.h>
+#include <jw/io/ps2_interface.h>
 #include <cstdio>
 
 using namespace jw;
@@ -37,6 +39,27 @@ int jwdpmi_main(std::deque<std::string>)
             tmp = count;
         }
     }*/
+     /*
+    dpmi::exception_handler exc0d { 0x0d, [](auto* frame, bool)
+    {
+        std::cerr << "EXC 0D at " << std::hex << frame->fault_address.segment << ':' << frame->fault_address.offset << '\n';
+        std::cerr << "stack  at " << std::hex << frame->stack.segment << ':' << frame->stack.offset << '\n';
+        std::string input;
+        std::cin >> input;
+        //frame->flags.trap = true;
+        return false;
+    } };
+
+    dpmi::exception_handler exc0e { 0x0e, [](auto* frame, bool)
+    {
+        std::cerr << "EXC 0E at " << std::hex << frame->fault_address.segment << ':' << frame->fault_address.offset << '\n';
+        std::cerr << "stack  at " << std::hex << frame->stack.segment << ':' << frame->stack.offset << '\n';
+        std::string input;
+        std::cin >> input;
+        //frame->flags.trap = true;
+        return false;
+    } };*/
+
     thread::coroutine<char()> asdf { [](auto& self)
     {
         std::string hello { "Hello, World!" };
@@ -71,8 +94,16 @@ int jwdpmi_main(std::deque<std::string>)
     }
 
     thread::yield();
-     
-    
+
+    io::keyboard keyb { std::make_shared<io::ps2_interface>() };
+
+    callback<void(io::keyboard&, io::key_state_pair)> kb_event {[](auto&, auto k) 
+    { 
+        std::cout << k.first.name() << '=' << k.second << '\n'; 
+    }};
+
+    keyb.key_changed += kb_event;
+    keyb.auto_update(true);
 
     dpmi::exception_handler exc03 { 3, [](auto*, bool)
     {
@@ -84,28 +115,7 @@ int jwdpmi_main(std::deque<std::string>)
         return true;
     } };
 
-    dpmi::exception_handler exc0d { 0x0d, [](auto* frame, bool)
-    {
-        std::cerr << "EXC 0D at " << std::hex << frame->fault_address.segment << ':' << frame->fault_address.offset << '\n';
-        std::cerr << "stack  at " << std::hex << frame->stack.segment << ':' << frame->stack.offset << '\n';
-        std::string input;
-        std::cin >> input;
-        //frame->flags.trap = true;
-        return false;
-    } };
-
-    dpmi::exception_handler exc0e { 0x0e, [](auto* frame, bool)
-    {
-        std::cerr << "EXC 0E at " << std::hex << frame->fault_address.segment << ':' << frame->fault_address.offset << '\n';
-        std::cerr << "stack  at " << std::hex << frame->stack.segment << ':' << frame->stack.offset << '\n';
-        std::string input;
-        std::cin >> input;
-        //frame->flags.trap = true;
-        return false;
-    } };
-
     std::string input;
-    std::cin >> input;
 
     asm("int 3;");
     asm("int 3;");
