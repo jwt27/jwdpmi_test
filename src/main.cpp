@@ -13,32 +13,10 @@
 
 using namespace jw;
 
-dpmi::far_ptr32 [[gnu::noinline]] get_ptr() { return dpmi::far_ptr32 { 0x1234, 0x12345678 }; }
-
 int jwdpmi_main(std::deque<std::string>)
 {
     std::cout << "Hello, World!" << std::endl;
-/*
-    volatile int count = 0;
-    jw::dpmi::irq_handler k { [&](auto ack) INTERRUPT { --count; ack(); }, jw::dpmi::always_chain };
-    jw::dpmi::irq_handler t { [&](auto ack) INTERRUPT { ++count; ack(); }, jw::dpmi::always_chain | jw::dpmi::no_reentry };
-    k.set_irq(1);
-    k.enable();
-    t.set_irq(0);
-    t.enable();
-    jw::io::out_port<byte>{0x43}.write(0x34);
-    jw::io::out_port<byte>{0x40}.write(0x00);
-    jw::io::out_port<byte>{0x40}.write(0x01);
-    int tmp = 0;
-    while (std::cin.good())
-    {
-        if (tmp != count)
-        {
-            if (tmp < count) std::cout << '!' << std::flush;
-            else std::cout << '.' << std::flush;
-            tmp = count;
-        }
-    }*/
+
      /*
     dpmi::exception_handler exc0d { 0x0d, [](auto* frame, bool)
     {
@@ -66,7 +44,6 @@ int jwdpmi_main(std::deque<std::string>)
         for (auto c : hello)
         {
             self.yield(c);
-            throw std::runtime_error("asdf");
         }
     } };
 
@@ -89,17 +66,35 @@ int jwdpmi_main(std::deque<std::string>)
         {
             try { while(true) thread::yield(); }
             catch (const std::exception& e) { std::cerr << e.what() << std::endl; }
+            throw std::runtime_error("test");
         } };
         orphan->start();
     }
 
-    thread::yield();
+    jw::thread::task<void(std::string)> hello { [&](auto s)
+    {
+        for (auto c : s)
+        {
+            std::cout << c;
+            thread::yield();
+        }
+        throw std::runtime_error("test");
+    } };
+    hello->start("asdfghjkl");
+
+    hello->await();
 
     io::keyboard keyb { std::make_shared<io::ps2_interface>() };
 
-    callback<void(io::keyboard&, io::key_state_pair)> kb_event {[](auto&, auto k) 
+    callback<void(io::key_state_pair)> kb_event {[&keyb](auto k)
     { 
-        std::cout << k.first.name() << '=' << k.second << '\n'; 
+        if (k.second.is_down())
+            std::cout << "You pressed ";
+        else
+            std::cout << "You released ";
+
+        std::cout << k.first.name();
+        std::cout << " (ascii: " << k.first.to_ascii(keyb) << ")\n";
     }};
 
     keyb.key_changed += kb_event;
@@ -135,7 +130,6 @@ int jwdpmi_main(std::deque<std::string>)
     {
         std::cerr << e.what();
     } */
-    
     while (s.good())
     {
         std::getline(s, input);

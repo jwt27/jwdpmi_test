@@ -157,11 +157,11 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\event.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\detail\rs232.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\ioport.h" />
-    <ClInclude Include="lib\libjwdpmi\include\jw\io\kb_interface.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\io\keyboard_interface.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\ps2_interface.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\key.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\keyboard.h" />
-    <ClInclude Include="lib\libjwdpmi\include\jw\io\scancode.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\io\detail\scancode.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\rs232.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\split_stdint.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\thread\coroutine.h" />
