@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClInclude Include="lib\libjwdpmi\include\debug.h" />
     <ClInclude Include="lib\libjwdpmi\include\function.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\alloc.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\alloc.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\debug.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\detail\irq.h" />

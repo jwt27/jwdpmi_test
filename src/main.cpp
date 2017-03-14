@@ -9,15 +9,20 @@
 #include <jw/thread/coroutine.h>
 #include <jw/io/keyboard.h>
 #include <jw/io/ps2_interface.h>
+#include <jw/alloc.h>
 #include <cstdio>
+#include <cstddef>
 
 using namespace jw;
+
+
 
 int jwdpmi_main(std::deque<std::string>)
 {
     std::cout << "Hello, World!" << std::endl;
 
-     /*
+    std::string input;
+     
     dpmi::exception_handler exc0d { 0x0d, [](auto* frame, bool)
     {
         std::cerr << "EXC 0D at " << std::hex << frame->fault_address.segment << ':' << frame->fault_address.offset << '\n';
@@ -27,7 +32,7 @@ int jwdpmi_main(std::deque<std::string>)
         //frame->flags.trap = true;
         return false;
     } };
-
+    /*
     dpmi::exception_handler exc0e { 0x0e, [](auto* frame, bool)
     {
         std::cerr << "EXC 0E at " << std::hex << frame->fault_address.segment << ':' << frame->fault_address.offset << '\n';
@@ -36,7 +41,19 @@ int jwdpmi_main(std::deque<std::string>)
         std::cin >> input;
         //frame->flags.trap = true;
         return false;
-    } };*/
+    } };*/ /*
+    struct alignas(0x10) aligned_t
+    {
+        int x;
+    };
+
+    std::vector<std::unique_ptr<aligned_t>> ptrvec;
+    for (int i = 0; i < 10000; ++i)
+    {
+        ptrvec.emplace_back(std::make_unique<aligned_t>());
+        //if ((int)p % 0x10 != 0) 
+        std::cerr << std::hex << (int)ptrvec.back().get() << "\n";
+    }        */
 
     thread::coroutine<char()> asdf { [](auto& self)
     {
@@ -60,7 +77,7 @@ int jwdpmi_main(std::deque<std::string>)
     {
         std::cerr << "exception happened! " << e.what() << '\n';
     }
-
+           /*
     {
         jw::thread::task<void()> orphan { [&]()
         {
@@ -69,7 +86,7 @@ int jwdpmi_main(std::deque<std::string>)
             throw std::runtime_error("test");
         } };
         orphan->start();
-    }
+    }    */
 
     jw::thread::task<void(std::string)> hello { [&](auto s)
     {
@@ -78,7 +95,7 @@ int jwdpmi_main(std::deque<std::string>)
             std::cout << c;
             thread::yield();
         }
-        throw std::runtime_error("test");
+        //throw std::runtime_error("test");
     } };
     hello->start("asdfghjkl");
 
@@ -97,8 +114,15 @@ int jwdpmi_main(std::deque<std::string>)
         std::cout << " (ascii: " << k.first.to_ascii(keyb) << ")\n";
     }};
 
-    keyb.key_changed += kb_event;
+    //keyb.key_changed += kb_event;
     keyb.auto_update(true);
+
+    io::keyboard_istream kbin { keyb };
+    while (kbin.good())
+    {
+        kbin >> input;
+        std::cout << "you said: " << input << '\n';
+    }
 
     dpmi::exception_handler exc03 { 3, [](auto*, bool)
     {
@@ -110,7 +134,6 @@ int jwdpmi_main(std::deque<std::string>)
         return true;
     } };
 
-    std::string input;
 
     asm("int 3;");
     asm("int 3;");
@@ -135,7 +158,7 @@ int jwdpmi_main(std::deque<std::string>)
         std::getline(s, input);
         s << "you said: " << input << "\r\n"; // << std::flush;
         std::cout << "you said: " << input << std::endl;
-        if (input.substr(0, 3) == "kys") break;
+        if (input.substr(0, 3) == "quit") break;
     }
 
     return 0;

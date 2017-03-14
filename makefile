@@ -21,7 +21,7 @@ CXXFLAGS += -funwind-tables -fasynchronous-unwind-tables
 CXXFLAGS += -fnon-call-exceptions 
 CXXFLAGS += -mcld
 CXXFLAGS += -mpreferred-stack-boundary=4
-#CXXFLAGS += -mstackrealign
+CXXFLAGS += -mstackrealign
 
 #LDFLAGS += -Wl,-Map,bin/debug.map
 
