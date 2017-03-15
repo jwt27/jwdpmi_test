@@ -23,7 +23,7 @@ int jwdpmi_main(std::deque<std::string>)
 
     std::string input;
      
-    dpmi::exception_handler exc0d { 0x0d, [](auto* frame, bool)
+    dpmi::exception_handler exc0d { 0x0d, [](auto*, auto* frame, bool)
     {
         std::cerr << "EXC 0D at " << std::hex << frame->fault_address.segment << ':' << frame->fault_address.offset << '\n';
         std::cerr << "stack  at " << std::hex << frame->stack.segment << ':' << frame->stack.offset << '\n';
@@ -33,7 +33,7 @@ int jwdpmi_main(std::deque<std::string>)
         return false;
     } };
     /*
-    dpmi::exception_handler exc0e { 0x0e, [](auto* frame, bool)
+    dpmi::exception_handler exc0e { 0x0e, [](auto* frame, bool, auto*)
     {
         std::cerr << "EXC 0E at " << std::hex << frame->fault_address.segment << ':' << frame->fault_address.offset << '\n';
         std::cerr << "stack  at " << std::hex << frame->stack.segment << ':' << frame->stack.offset << '\n';
@@ -41,19 +41,19 @@ int jwdpmi_main(std::deque<std::string>)
         std::cin >> input;
         //frame->flags.trap = true;
         return false;
-    } };*/ /*
+    } };*/
+    /*
     struct alignas(0x10) aligned_t
     {
         int x;
     };
 
-    std::vector<std::unique_ptr<aligned_t>> ptrvec;
-    for (int i = 0; i < 10000; ++i)
+    for (int i = 0; i < 10; ++i)
     {
-        ptrvec.emplace_back(std::make_unique<aligned_t>());
-        //if ((int)p % 0x10 != 0) 
-        std::cerr << std::hex << (int)ptrvec.back().get() << "\n";
-    }        */
+        auto p = new aligned_t { };
+        new byte { };
+        std::clog << std::hex << (unsigned)p << "\n";
+    } */
 
     thread::coroutine<char()> asdf { [](auto& self)
     {
@@ -118,26 +118,38 @@ int jwdpmi_main(std::deque<std::string>)
     keyb.auto_update(true);
     keyb.redirect_cin();
 
-    while (std::cin.good())
+    dpmi::exception_handler exc03 { 3, [](auto* reg, auto*, bool)
     {
-        std::cin >> input;
-        std::cout << "you said: " << input << '\n';
-    }
+        std::cerr << "trap!\n" << *reg;
 
-    dpmi::exception_handler exc03 { 3, [](auto*, bool)
-    {
-        volatile long double x = 1.0;
-        volatile long double y = 0.5;
-        std::cerr << x + y << '\n';
-        //std::cerr << "!";
-        //frame->flags.trap = true;
+        reg->eax = 0xffffffff;
+        reg->ebx = 0xeeeeeeee;
+        reg->ecx = 0xdddddddd;
+        reg->edx = 0xcccccccc;
+        reg->esi = 0xbbbbbbbb;
+        reg->edi = 0xaaaaaaaa;
         return true;
     } };
 
+    dpmi::cpu_registers reg { };
+    reg.eax = 0x12345678;
+    reg.ebx = 0x11111111;
+    reg.ecx = 0x22222222;
+    reg.edx = 0x33333333;
+    reg.esi = 0x44444444;
+    reg.edi = 0x55555555;
 
-    asm("int 3;");
-    asm("int 3;");
-    asm("int 3;");
+    std::cout << "pre-trap:\n"<< reg;
+
+    asm("int 3;"
+        : "+a" (reg.eax)
+        , "+b" (reg.ebx)
+        , "+c" (reg.ecx)
+        , "+d" (reg.edx)
+        , "+S" (reg.esi)
+        , "+D" (reg.edi));
+
+    std::cout << "post-trap:\n"<< reg;
     
     io::rs232_config cfg { };
     cfg.set_com_port(io::com1);
