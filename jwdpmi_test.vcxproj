@@ -120,6 +120,7 @@
     <ClCompile Include="lib\libjwdpmi\src\fpu.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\irq.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\irq_mask.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\keyboard_streambuf.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\ps2_interface.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\key.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\keyboard.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\lock.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\enum_struct.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\event.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\io\detail\keyboard_streambuf.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\detail\rs232.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\ioport.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\keyboard_interface.h" />

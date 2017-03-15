@@ -116,11 +116,11 @@ int jwdpmi_main(std::deque<std::string>)
 
     //keyb.key_changed += kb_event;
     keyb.auto_update(true);
+    keyb.redirect_cin();
 
-    io::keyboard_istream kbin { keyb };
-    while (kbin.good())
+    while (std::cin.good())
     {
-        kbin >> input;
+        std::cin >> input;
         std::cout << "you said: " << input << '\n';
     }
 
