@@ -245,3 +245,8 @@ ModelManifest.xml
 /tools/gcc_defines.h
 *.vdi
 *.img
+dosbox.*
+glide.*
+tools/*_img.sh
+tools/*_vm.sh
+
