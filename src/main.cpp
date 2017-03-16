@@ -21,7 +21,6 @@ int jwdpmi_main(std::deque<std::string>)
 {
     std::cout << "Hello, World!" << std::endl;
 
-
     std::string input;
 
     /*
@@ -86,7 +85,7 @@ int jwdpmi_main(std::deque<std::string>)
         while (in.good())
         {
             std::getline(in, input);
-            out << "you said: " << input << "\r\n";// << std::flush;
+            out << "you said: " << input << "\r\n" << std::flush;
             if (input.substr(0, 4) == "quit") break;
             thread::yield();
         }
@@ -98,5 +97,6 @@ int jwdpmi_main(std::deque<std::string>)
     t2->start(std::cin, s);
     t1->await();
     t2->await();
+
     return 0;
 }
