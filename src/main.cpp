@@ -21,6 +21,7 @@ int jwdpmi_main(std::deque<std::string>)
 {
     std::cout << "Hello, World!" << std::endl;
 
+
     std::string input;
 
     /*
@@ -57,8 +58,8 @@ int jwdpmi_main(std::deque<std::string>)
 
     io::keyboard keyb { std::make_shared<io::ps2_interface>() };
 
-    callback<void(io::key_state_pair)> kb_event {[&keyb](auto k)
-    { 
+    callback<void(io::key_state_pair)> kb_event { [&keyb](auto k)
+    {
         if (k.second.is_down())
             std::cout << "You pressed ";
         else
@@ -66,17 +67,18 @@ int jwdpmi_main(std::deque<std::string>)
 
         std::cout << k.first.name();
         std::cout << " (ascii: " << k.first.to_ascii(keyb) << ")\n";
-    }};
+    } };
 
     //keyb.key_changed += kb_event;
     keyb.auto_update(true);
     keyb.redirect_cin();
-    
+
     io::rs232_config cfg { };
     cfg.set_com_port(io::com1);
     //cfg.flow_control = io::rs232_config::rts_cts;
     io::rs232_stream s { cfg };
     s << "hello world!\r\n" << std::flush;
+
 
     auto chat = [](auto& in, auto& out)
     {
@@ -96,6 +98,5 @@ int jwdpmi_main(std::deque<std::string>)
     t2->start(std::cin, s);
     t1->await();
     t2->await();
-
     return 0;
 }
