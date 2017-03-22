@@ -5,6 +5,7 @@
 #include <jw/io/ioport.h>
 #include <jw/io/rs232.h>
 #include <jw/dpmi/cpu_exception.h>
+#include <jw/dpmi/debug.h>
 #include <jw/thread/task.h>
 #include <jw/thread/coroutine.h>
 #include <jw/io/keyboard.h>
@@ -16,13 +17,51 @@
 using namespace jw;
 
 
-
 int jwdpmi_main(std::deque<std::string>)
 {
     std::cout << "Hello, World!" << std::endl;
+    dpmi::breakpoint();
+    {
+        dpmi::trap_mask no_trace { };
+        std::cout << "not tracing here...\n";
+        //dpmi::breakpoint();
+    }
+    std::cout << "trace enabled again!\n";
+    try
+    {
+        dpmi::breakpoint();
+        {
+            dpmi::trap_mask no_trace { };
+            std::cout << "testing...\n";
+            //std::cout << 1 / 0;
+            std::cout << "nothing happened?\n";
+        }
+    }
+    catch (...) { }
 
-    std::string input;
+    std::cout << "trace enabled again!\n";
 
+    auto test_thread = []()
+    {
+        while (true)
+        {
+            dpmi::breakpoint();
+            std::cout << "hello!\n";
+            thread::yield();
+        }
+    };
+
+    thread::task<void()> thr1 { test_thread };
+    thread::task<void()> thr2 { test_thread };
+
+    thr1->start();
+    thr2->start();
+    thr1->await();
+    thr2->await();
+
+    std::string input { };
+
+    return 0;
     /*
     dpmi::exception_handler exc0d { 0x0d, [](auto*, auto* frame, bool)
     {
@@ -73,7 +112,7 @@ int jwdpmi_main(std::deque<std::string>)
     keyb.redirect_cin();
 
     io::rs232_config cfg { };
-    cfg.set_com_port(io::com1);
+    cfg.set_com_port(io::com2);
     //cfg.flow_control = io::rs232_config::rts_cts;
     io::rs232_stream s { cfg };
     s << "hello world!\r\n" << std::flush;

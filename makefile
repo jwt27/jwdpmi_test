@@ -4,7 +4,7 @@ CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
 CXXFLAGS += -O3 -flto=24 -flto-odr-type-merging
-CXXFLAGS += -march=pentium3
+CXXFLAGS += -march=pentium-mmx
 CXXFLAGS += -std=gnu++17
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += -Wno-attributes
@@ -16,9 +16,8 @@ CXXFLAGS += -Wsuggest-override
 # CXXFLAGS += -Wpadded
 # CXXFLAGS += -Wpacked
 # CXXFLAGS += -fno-omit-frame-pointer
-CXXFLAGS += -gdwarf-4
-CXXFLAGS += -funwind-tables -fasynchronous-unwind-tables
-CXXFLAGS += -fnon-call-exceptions 
+CXXFLAGS += -ggdb
+CXXFLAGS += -fnon-call-exceptions -fasynchronous-unwind-tables
 CXXFLAGS += -mcld
 CXXFLAGS += -mpreferred-stack-boundary=4
 CXXFLAGS += -mstackrealign

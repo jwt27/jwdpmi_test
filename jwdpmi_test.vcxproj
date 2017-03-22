@@ -94,8 +94,7 @@
     <NMakeForcedIncludes>$(ProjectDir)\tools\intellisense.h</NMakeForcedIncludes>
     <AdditionalOptions>/u /X /std:c++latest /experimental</AdditionalOptions>
     <NMakeIncludeSearchPath>$(ProjectDir)\lib\libjwdpmi\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\i586-pc-msdosdjgpp;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\backward;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include-fixed;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\sys-include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\include;$(ProjectDir)\include</NMakeIncludeSearchPath>
-    <RemoteBuildOutputs>
-    </RemoteBuildOutputs>
+    <RemoteBuildOutputs>bin/dpmitest.exe</RemoteBuildOutputs>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <LocalRemoteCopySources>true</LocalRemoteCopySources>
@@ -108,8 +107,7 @@
     <NMakeForcedIncludes>$(ProjectDir)\tools\intellisense.h</NMakeForcedIncludes>
     <AdditionalOptions>/u /X /std:c++latest /experimental</AdditionalOptions>
     <NMakeIncludeSearchPath>$(ProjectDir)\lib\libjwdpmi\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\i586-pc-msdosdjgpp;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\backward;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include-fixed;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\sys-include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\include;$(ProjectDir)\include</NMakeIncludeSearchPath>
-    <RemoteBuildOutputs>
-    </RemoteBuildOutputs>
+    <RemoteBuildOutputs>bin/dpmitest.exe</RemoteBuildOutputs>
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="lib\libjwdpmi\src\alloc.cpp" />
@@ -146,7 +144,9 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\alloc.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\alloc.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\debug.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\detail\alloc.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\detail\cpu_exception.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\detail\debug.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\detail\irq.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\dpmi.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\cpu_exception.h" />
