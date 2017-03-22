@@ -45,8 +45,8 @@ int jwdpmi_main(std::deque<std::string>)
     {
         while (true)
         {
-            dpmi::breakpoint();
             std::cout << "hello!\n";
+            dpmi::breakpoint();
             thread::yield();
         }
     };

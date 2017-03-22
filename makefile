@@ -3,8 +3,8 @@ CXX := g++
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
-CXXFLAGS += -O3 -flto=24 -flto-odr-type-merging
-CXXFLAGS += -march=pentium-mmx
+CXXFLAGS += -Og -flto=24 -flto-odr-type-merging
+CXXFLAGS += -march=pentium3
 CXXFLAGS += -std=gnu++17
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += -Wno-attributes

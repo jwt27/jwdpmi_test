@@ -92,9 +92,9 @@
     <RemoteReBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -B -j24 all"</RemoteReBuildCommandLine>
     <RemoteCleanCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh clean"</RemoteCleanCommandLine>
     <NMakeForcedIncludes>$(ProjectDir)\tools\intellisense.h</NMakeForcedIncludes>
-    <AdditionalOptions>/u /X /std:c++latest /experimental</AdditionalOptions>
+    <AdditionalOptions>-std=gnu++17 /u /X /std:c++latest /experimental</AdditionalOptions>
     <NMakeIncludeSearchPath>$(ProjectDir)\lib\libjwdpmi\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\i586-pc-msdosdjgpp;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\backward;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include-fixed;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\sys-include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\include;$(ProjectDir)\include</NMakeIncludeSearchPath>
-    <RemoteBuildOutputs>bin/dpmitest.exe</RemoteBuildOutputs>
+    <RemoteBuildOutputs>$(RemoteRootDir)/$(ProjectName)/bin/dpmitest.exe</RemoteBuildOutputs>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <LocalRemoteCopySources>true</LocalRemoteCopySources>
@@ -105,9 +105,9 @@
     <RemoteReBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -B -j24 all"</RemoteReBuildCommandLine>
     <RemoteCleanCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh clean"</RemoteCleanCommandLine>
     <NMakeForcedIncludes>$(ProjectDir)\tools\intellisense.h</NMakeForcedIncludes>
-    <AdditionalOptions>/u /X /std:c++latest /experimental</AdditionalOptions>
+    <AdditionalOptions>-std=gnu++17 /u /X /std:c++latest /experimental</AdditionalOptions>
     <NMakeIncludeSearchPath>$(ProjectDir)\lib\libjwdpmi\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\i586-pc-msdosdjgpp;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\backward;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include-fixed;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\sys-include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\include;$(ProjectDir)\include</NMakeIncludeSearchPath>
-    <RemoteBuildOutputs>bin/dpmitest.exe</RemoteBuildOutputs>
+    <RemoteBuildOutputs>$(RemoteRootDir)/$(ProjectName)/bin/dpmitest.exe</RemoteBuildOutputs>
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="lib\libjwdpmi\src\alloc.cpp" />
