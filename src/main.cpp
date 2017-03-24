@@ -21,6 +21,22 @@ int jwdpmi_main(std::deque<std::string>)
 {
     std::cout << "Hello, World!" << std::endl;
     dpmi::breakpoint();
+
+    dpmi::memory<int> mem { 4 };
+
+    for (int i = 0; i < 4; ++i) mem[i] = i;
+    for (int i = 0; i < 4; ++i) std::cout << mem[i] << ' ';
+    std::cout << '\n';
+
+    mem.resize(10);
+
+    for (int i = 0; i < 10; ++i) mem[i] = 10 - i;
+    for (int i = 0; i < 10; ++i) std::cout << mem[i] << ' ';
+    std::cout << '\n';
+
+
+    return 0;
+    /*
     {
         dpmi::trap_mask no_trace { };
         std::cout << "not tracing here...\n";
@@ -39,8 +55,9 @@ int jwdpmi_main(std::deque<std::string>)
     }
     catch (...) { }
 
-    std::cout << "trace enabled again!\n";
+    std::cout << "trace enabled again!\n";*/
 
+    
     auto test_thread = []()
     {
         while (true)
@@ -60,8 +77,8 @@ int jwdpmi_main(std::deque<std::string>)
     thr2->await();
 
     std::string input { };
+     
 
-    return 0;
     /*
     dpmi::exception_handler exc0d { 0x0d, [](auto*, auto* frame, bool)
     {
@@ -105,11 +122,15 @@ int jwdpmi_main(std::deque<std::string>)
 
         std::cout << k.first.name();
         std::cout << " (ascii: " << k.first.to_ascii(keyb) << ")\n";
+        dpmi::breakpoint();
     } };
 
-    //keyb.key_changed += kb_event;
+    keyb.key_changed += kb_event;
     keyb.auto_update(true);
-    keyb.redirect_cin();
+    //keyb.redirect_cin();
+
+    while (true) { thread::yield(); }
+    return 0;
 
     io::rs232_config cfg { };
     cfg.set_com_port(io::com2);

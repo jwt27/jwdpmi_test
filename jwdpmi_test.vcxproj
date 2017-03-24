@@ -88,8 +88,8 @@
     <OutDir>$(ProjectDir)bin\</OutDir>
     <IntDir>$(ProjectDir)obj\</IntDir>
     <SourcesToCopyRemotelyOverride />
-    <RemoteBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -j24 all"</RemoteBuildCommandLine>
-    <RemoteReBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -B -j24 all"</RemoteReBuildCommandLine>
+    <RemoteBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -j48 all"</RemoteBuildCommandLine>
+    <RemoteReBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -B -j48 all"</RemoteReBuildCommandLine>
     <RemoteCleanCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh clean"</RemoteCleanCommandLine>
     <NMakeForcedIncludes>$(ProjectDir)\tools\intellisense.h</NMakeForcedIncludes>
     <AdditionalOptions>-std=gnu++17 /u /X /std:c++latest /experimental</AdditionalOptions>
@@ -101,8 +101,8 @@
     <OutDir>$(ProjectDir)bin\</OutDir>
     <IntDir>$(ProjectDir)obj\</IntDir>
     <SourcesToCopyRemotelyOverride />
-    <RemoteBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -j24 all"</RemoteBuildCommandLine>
-    <RemoteReBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -B -j24 all"</RemoteReBuildCommandLine>
+    <RemoteBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -j48 all"</RemoteBuildCommandLine>
+    <RemoteReBuildCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh -B -j48 all"</RemoteReBuildCommandLine>
     <RemoteCleanCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh clean"</RemoteCleanCommandLine>
     <NMakeForcedIncludes>$(ProjectDir)\tools\intellisense.h</NMakeForcedIncludes>
     <AdditionalOptions>-std=gnu++17 /u /X /std:c++latest /experimental</AdditionalOptions>
@@ -119,6 +119,7 @@
     <ClCompile Include="lib\libjwdpmi\src\irq.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\irq_mask.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\keyboard_streambuf.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\memory.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\ps2_interface.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\key.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\keyboard.cpp" />
@@ -156,6 +157,8 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\irq_check.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\irq_mask.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\lock.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\memory.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\realmode.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\enum_struct.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\event.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\detail\keyboard_streambuf.h" />
@@ -174,7 +177,7 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\thread\mutex.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\thread\task.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\thread\thread.h" />
-    <ClInclude Include="lib\libjwdpmi\include\jw\typedef.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\common.h" />
     <ClInclude Include="lib\libjwdpmi\jwdpmi_config.h" />
     <ClInclude Include="lib\libjwdpmi\jwdpmi_config_default.h" />
     <ClInclude Include="tools\intellisense.h" />

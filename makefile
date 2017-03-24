@@ -3,7 +3,7 @@ CXX := g++
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
-CXXFLAGS += -Og -flto=24 -flto-odr-type-merging
+CXXFLAGS += -O3 -flto=24 -flto-odr-type-merging
 CXXFLAGS += -march=pentium3
 CXXFLAGS += -std=gnu++17
 CXXFLAGS += -Wall -Wextra
@@ -21,6 +21,7 @@ CXXFLAGS += -fnon-call-exceptions -fasynchronous-unwind-tables
 CXXFLAGS += -mcld
 CXXFLAGS += -mpreferred-stack-boundary=4
 CXXFLAGS += -mstackrealign
+#CXXFLAGS += -DNDEBUG
 
 #LDFLAGS += -Wl,-Map,bin/debug.map
 
@@ -45,10 +46,10 @@ endif
 
 .PHONY: all clean vs 
 
-all: $(OBJDIR) $(OUTDIR) $(OUTDIR)/$(OUTPUT)
+all: $(OUTDIR)/$(OUTPUT)
 
 clean:
-	-rm -rf obj/* bin/*
+	rm -f $(OBJ) $(DEP) $(OUTDIR)/$(OUTPUT)
 	$(MAKE) clean -C lib/libjwdpmi/
     
 vs:
@@ -61,18 +62,18 @@ libjwdpmi:
 	$(MAKE) -C lib/libjwdpmi/
 
 $(OUTDIR): 
-	-mkdir $(OUTDIR)
+	mkdir -p $(OUTDIR)
 
 $(OBJDIR):
-	-mkdir $(OBJDIR)
+	mkdir -p $(OBJDIR)
 
-$(OUTDIR)/$(OUTPUT): $(OBJ) libjwdpmi
+$(OUTDIR)/$(OUTPUT): $(OBJ) libjwdpmi | $(OUTDIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LDFLAGS) $(LIBS) $(PIPECMD)
 #	cp lib/libjwdpmi/jwdpmi_config.h lib/libjwdpmi/jwdpmi_config_default.h
 	objdump -M intel-mnemonic --insn-width=10 -C -w -d $@ > $(OUTDIR)/main.asm
 #	stubedit $@ dpmi=hdpmi32.exe
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -o $@ -MF $(@:.o=.d) $(INCLUDE) -c $< $(PIPECMD)
 
 ifneq ($(MAKECMDGOALS),clean)
