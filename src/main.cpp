@@ -1,6 +1,7 @@
 #include <iostream>
 #include <deque>
 #include <string>
+#include <experimental/vector>
 #include <jw/dpmi/irq.h>
 #include <jw/io/ioport.h>
 #include <jw/io/rs232.h>
@@ -10,11 +11,53 @@
 #include <jw/thread/coroutine.h>
 #include <jw/io/keyboard.h>
 #include <jw/io/ps2_interface.h>
+#include <jw/chrono/chrono.h>
 #include <jw/alloc.h>
 #include <cstdio>
 #include <cstddef>
 
 using namespace jw;
+
+void dos_mem_test()
+{
+    std::cout << std::hex << std::setfill('0');
+
+    auto size = 4;
+    size = dpmi::round_up_to_paragraph_size(size);
+    std::cout << size << '\n';
+    size = dpmi::round_up_to_page_size(size);
+    std::cout << size / dpmi::get_page_size() << '\n';
+
+    dpmi::mapped_dos_memory<std::uint16_t> map { 80 * 50, dpmi::far_ptr16 { 0xB800, 0x0000 } };
+
+    auto pmr = std::experimental::pmr::polymorphic_allocator<std::uint16_t> { map.get_memory_resource() };
+    std::experimental::pmr::vector<int> text { 80 * 50, pmr };
+
+    /*
+    std::uint16_t x { 0x0700 };
+    while (true)
+    {
+        for (auto i = 0; i < 80 * 50; ++i)
+        {
+            map[i] = x++;
+        }
+    }*/
+
+    dpmi::dos_memory<volatile byte> mem { 16 };
+    
+    for (int i = 0; i < 16; ++i) std::cout << std::setw(2) << (int)mem[i] << ' ';
+    std::cout << '\n';
+
+    for (int i = 0; i < 4; ++i) mem[i] = i;
+    for (int i = 0; i < 4; ++i) std::cout << (int)mem[i] << ' ';
+    std::cout << '\n';
+
+    mem.resize(32);
+
+    for (int i = 0; i < 32; ++i) mem[i] = 32 - i;
+    for (int i = 0; i < 32; ++i) std::cout << (int)mem[i] << ' ';
+    std::cout << '\n';
+}
 
 
 int jwdpmi_main(std::deque<std::string>)
@@ -22,18 +65,27 @@ int jwdpmi_main(std::deque<std::string>)
     std::cout << "Hello, World!" << std::endl;
     dpmi::breakpoint();
 
-    dpmi::memory<int> mem { 4 };
+    chrono::chrono::setup_tsc(0x100000);
+    //chrono::chrono::setup_rtc(true, 3);
+    chrono::chrono::setup_pit(true);
 
-    for (int i = 0; i < 4; ++i) mem[i] = i;
-    for (int i = 0; i < 4; ++i) std::cout << mem[i] << ' ';
-    std::cout << '\n';
+    using namespace std::chrono_literals;
+    thread::yield_for<chrono::tsc>(1ms);
 
-    mem.resize(10);
+    
+    using clock = chrono::tsc;
+    auto i = 0;
+    auto begin = clock::now();
+    auto t = begin;
+    while (true)
+    {
+        t += 10ms;
+        thread::yield_until(t);
+        auto now = clock::now();
+        std::cout << "i=" << i++ << ",\terror=" << (now - t).count() << '\n';
+    }
 
-    for (int i = 0; i < 10; ++i) mem[i] = 10 - i;
-    for (int i = 0; i < 10; ++i) std::cout << mem[i] << ' ';
-    std::cout << '\n';
-
+    //dos_mem_test();
 
     return 0;
     /*

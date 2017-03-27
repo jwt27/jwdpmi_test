@@ -111,6 +111,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="lib\libjwdpmi\src\alloc.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\chrono.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\cpu_exception.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\debug.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\dpmi.cpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="lib\libjwdpmi\include\debug.h" />
     <ClInclude Include="lib\libjwdpmi\include\function.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\alloc.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\chrono\chrono.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\alloc.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\debug.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\detail\alloc.h" />
@@ -165,6 +167,7 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\io\detail\rs232.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\ioport.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\keyboard_interface.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\io\mpu401.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\ps2_interface.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\key.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\keyboard.h" />
