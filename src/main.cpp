@@ -65,25 +65,35 @@ int jwdpmi_main(std::deque<std::string>)
     std::cout << "Hello, World!" << std::endl;
     dpmi::breakpoint();
 
-    chrono::chrono::setup_tsc(0x100000);
-    //chrono::chrono::setup_rtc(true, 3);
-    chrono::chrono::setup_pit(true);
+    chrono::chrono::setup_rtc(true, 3);
+    chrono::chrono::setup_pit(true, 0x1000);
+    chrono::chrono::setup_tsc(1000);
 
     using namespace std::chrono_literals;
-    thread::yield_for<chrono::tsc>(1ms);
-
     
     using clock = chrono::tsc;
-    auto i = 0;
-    auto begin = clock::now();
-    auto t = begin;
-    while (true)
+    using ref = chrono::rtc;
+    auto ref_now = ref::now();
+    auto now = clock::now();
+    auto last_now = now;
+    auto t = now;
+    double average = 0;
+    for (auto i = 0; i < 1000000; ++i)
     {
-        t += 10ms;
+        t += 100ms;
+        //std::cout << "now=" << now.time_since_epoch().count() << "\t t=" << t.time_since_epoch().count() << '\n';
         thread::yield_until(t);
-        auto now = clock::now();
-        std::cout << "i=" << i++ << ",\terror=" << (now - t).count() << '\n';
+        //while (clock::now() < t) { }
+        //thread::yield();
+        last_now = now;
+        auto last_ref = ref_now;
+        now = clock::now();
+        ref_now = ref::now();
+        std::cout << "i=" << i << ", \terror=" << (now - t).count() << ", \tcycle=" << (ref_now - last_ref).count() << '\n';
+        average += (ref_now - last_ref).count();
+        std::cout << "average cycle=" << average / (i+1) << '\n';
     }
+    std::cout << "cycle=" << (now - last_now).count() << "\terror=" << (now - t).count()/1000000 << '\n';
 
     //dos_mem_test();
 
