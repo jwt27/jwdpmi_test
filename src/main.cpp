@@ -7,70 +7,133 @@
 #include <jw/io/rs232.h>
 #include <jw/dpmi/cpu_exception.h>
 #include <jw/dpmi/debug.h>
+#include <jw/dpmi/realmode.h>
 #include <jw/thread/task.h>
 #include <jw/thread/coroutine.h>
 #include <jw/io/keyboard.h>
 #include <jw/io/ps2_interface.h>
 #include <jw/chrono/chrono.h>
 #include <jw/alloc.h>
+#include <jw/vector2.h>
+#include <jw/matrix.h>
+#include <jw/io/mpu401.h>
 #include <cstdio>
 #include <cstddef>
 
 using namespace jw;
+/*
+template<typename T> struct matrix;
+template<typename M> struct matrix_iterator_y;
 
-void dos_mem_test()
+enum direction
 {
-    std::cout << std::hex << std::setfill('0');
+    up, down, left, right
+};
 
-    auto size = 4;
-    size = dpmi::round_up_to_paragraph_size(size);
-    std::cout << size << '\n';
-    size = dpmi::round_up_to_page_size(size);
-    std::cout << size / dpmi::get_page_size() << '\n';
+template<direction dir, typename M>
+struct matrix_iterator
+{
+    using T = typename M::value_type;
+    constexpr matrix_iterator(M& matrix, T* ptr) : m(matrix), p(ptr) { }
 
-    dpmi::mapped_dos_memory<std::uint16_t> map { 80 * 50, dpmi::far_ptr16 { 0xB800, 0x0000 } };
+    constexpr auto* operator->() noexcept { return p; }
+    constexpr auto& operator*() noexcept { return *p; }
 
-    auto pmr = std::experimental::pmr::polymorphic_allocator<std::uint16_t> { map.get_memory_resource() };
-    std::experimental::pmr::vector<int> text { 80 * 50, pmr };
-
-    /*
-    std::uint16_t x { 0x0700 };
-    while (true)
+    constexpr auto operator[](std::ptrdiff_t n) const
     {
-        for (auto i = 0; i < 80 * 50; ++i)
+        switch (dir)
         {
-            map[i] = x++;
+        case up:    return matrix_iterator<right, M> { *this + n };
+        case down:  return matrix_iterator<left, M>  { *this + n };
+        case left:  return matrix_iterator<up, M>    { *this + n };
+        case right: return matrix_iterator<down, M>  { *this + n };
         }
-    }*/
+    }
 
-    dpmi::dos_memory<volatile byte> mem { 16 };
-    
-    for (int i = 0; i < 16; ++i) std::cout << std::setw(2) << (int)mem[i] << ' ';
-    std::cout << '\n';
+    constexpr auto& operator+=(std::ptrdiff_t n)
+    {
+        switch (dir)
+        {
+        case up:    p -= n * m.width(); break;
+        case down:  p += n * m.width(); break;
+        case left:  p -= n; break;
+        case right: p += n; break;
+        }
+        return *this;
+    }
 
-    for (int i = 0; i < 4; ++i) mem[i] = i;
-    for (int i = 0; i < 4; ++i) std::cout << (int)mem[i] << ' ';
-    std::cout << '\n';
+    constexpr auto& operator-=(std::ptrdiff_t n) { return operator+=(-n); }
 
-    mem.resize(32);
+    M& m;
+    T* p;
+};
 
-    for (int i = 0; i < 32; ++i) mem[i] = 32 - i;
-    for (int i = 0; i < 32; ++i) std::cout << (int)mem[i] << ' ';
-    std::cout << '\n';
-}
+template<typename T>
+struct matrix
+{
+    using value_type = T;
+    constexpr matrix(T* ptr, std::size_t width, std::size_t height) : data(ptr), w(width), h(height) { }
 
+    template<direction dir>
+    constexpr auto get_iterator();
+
+    constexpr auto& operator()(std::size_t x, std::size_t y) { return *(data + x + w * y); }
+    constexpr auto width() const noexcept { return w; }
+    constexpr auto height() const noexcept { return h; }
+    constexpr auto size() const noexcept { return w * h; }
+
+protected:
+    T* data;
+    std::size_t w, h;
+};*/
 
 int jwdpmi_main(std::deque<std::string>)
 {
     std::cout << "Hello, World!" << std::endl;
     dpmi::breakpoint();
+    
+    io::keyboard keyb { std::make_shared<io::ps2_interface>() };
 
-    chrono::chrono::setup_rtc(true, 3);
     chrono::chrono::setup_pit(true, 0x1000);
     chrono::chrono::setup_tsc(1000);
+    using clock = chrono::tsc;
 
-    using namespace std::chrono_literals;
-    
+    dpmi::mapped_dos_memory<std::uint16_t> screen_ptr { 80 * 50, dpmi::far_ptr16 { 0xB800, 0 } };
+    matrix<std::uint16_t> screen { 80, 50, screen_ptr.get_ptr() };
+    matrix_container<std::uint16_t> m { 80, 50 };
+    m.fill(0x1000);
+
+    auto r = m.make_range({ 5,5 }, { 70,40 });
+    r.fill(0x2000);
+
+    vector2f delta { 0,0 };
+    vector2f player { 20,20 };
+    auto last_now = clock::now();
+    while (true)
+    {
+        auto now = clock::now();
+        float dt = (now - last_now).count() / 1e9f;
+        last_now = now;
+
+        using namespace io;
+        keyb.update();
+        vector2f new_delta { 0,0 };
+        if (keyb[key::up])      new_delta += vector2f::up();
+        if (keyb[key::down])    new_delta += vector2f::down();
+        if (keyb[key::left])    new_delta += vector2f::left();
+        if (keyb[key::right])   new_delta += vector2f::right();
+        if (keyb[key::esc]) break;
+        delta += new_delta * dt * .2;
+        if (delta.magnitude() > 1) delta.normalize();
+
+        r(player) = 0;
+        player += delta;
+        r(player) = 0x0F02;
+        delta -= delta * dt * 2;
+        screen.assign(m);
+        thread::yield();
+    }
+  /*  
     using clock = chrono::tsc;
     using ref = chrono::rtc;
     auto ref_now = ref::now();
@@ -94,7 +157,7 @@ int jwdpmi_main(std::deque<std::string>)
         std::cout << "average cycle=" << average / (i+1) << '\n';
     }
     std::cout << "cycle=" << (now - last_now).count() << "\terror=" << (now - t).count()/1000000 << '\n';
-
+*/
     //dos_mem_test();
 
     return 0;
@@ -172,24 +235,6 @@ int jwdpmi_main(std::deque<std::string>)
         new byte { };
         std::clog << std::hex << (unsigned)p << "\n";
     } */
-
-    io::keyboard keyb { std::make_shared<io::ps2_interface>() };
-
-    callback<void(io::key_state_pair)> kb_event { [&keyb](auto k)
-    {
-        if (k.second.is_down())
-            std::cout << "You pressed ";
-        else
-            std::cout << "You released ";
-
-        std::cout << k.first.name();
-        std::cout << " (ascii: " << k.first.to_ascii(keyb) << ")\n";
-        dpmi::breakpoint();
-    } };
-
-    keyb.key_changed += kb_event;
-    keyb.auto_update(true);
-    //keyb.redirect_cin();
 
     while (true) { thread::yield(); }
     return 0;

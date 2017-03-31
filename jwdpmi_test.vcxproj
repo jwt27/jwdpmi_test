@@ -121,6 +121,7 @@
     <ClCompile Include="lib\libjwdpmi\src\irq_mask.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\keyboard_streambuf.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\memory.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\mpu401.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\ps2_interface.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\key.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\keyboard.cpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\io\keyboard.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\detail\scancode.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\rs232.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\matrix.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\split_stdint.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\thread\coroutine.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\thread\detail\thread.h" />
@@ -181,6 +183,7 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\thread\task.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\thread\thread.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\common.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\vector2.h" />
     <ClInclude Include="lib\libjwdpmi\jwdpmi_config.h" />
     <ClInclude Include="lib\libjwdpmi\jwdpmi_config_default.h" />
     <ClInclude Include="tools\intellisense.h" />
