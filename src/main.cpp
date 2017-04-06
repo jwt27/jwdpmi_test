@@ -17,97 +17,130 @@
 #include <jw/vector2.h>
 #include <jw/matrix.h>
 #include <jw/io/mpu401.h>
+#include <jw/video/pixel.h>
+#include <jw/video/vbe.h>
+#include <jw/math.h>
 #include <cstdio>
 #include <cstddef>
 
 using namespace jw;
-/*
-template<typename T> struct matrix;
-template<typename M> struct matrix_iterator_y;
-
-enum direction
-{
-    up, down, left, right
-};
-
-template<direction dir, typename M>
-struct matrix_iterator
-{
-    using T = typename M::value_type;
-    constexpr matrix_iterator(M& matrix, T* ptr) : m(matrix), p(ptr) { }
-
-    constexpr auto* operator->() noexcept { return p; }
-    constexpr auto& operator*() noexcept { return *p; }
-
-    constexpr auto operator[](std::ptrdiff_t n) const
-    {
-        switch (dir)
-        {
-        case up:    return matrix_iterator<right, M> { *this + n };
-        case down:  return matrix_iterator<left, M>  { *this + n };
-        case left:  return matrix_iterator<up, M>    { *this + n };
-        case right: return matrix_iterator<down, M>  { *this + n };
-        }
-    }
-
-    constexpr auto& operator+=(std::ptrdiff_t n)
-    {
-        switch (dir)
-        {
-        case up:    p -= n * m.width(); break;
-        case down:  p += n * m.width(); break;
-        case left:  p -= n; break;
-        case right: p += n; break;
-        }
-        return *this;
-    }
-
-    constexpr auto& operator-=(std::ptrdiff_t n) { return operator+=(-n); }
-
-    M& m;
-    T* p;
-};
-
-template<typename T>
-struct matrix
-{
-    using value_type = T;
-    constexpr matrix(T* ptr, std::size_t width, std::size_t height) : data(ptr), w(width), h(height) { }
-
-    template<direction dir>
-    constexpr auto get_iterator();
-
-    constexpr auto& operator()(std::size_t x, std::size_t y) { return *(data + x + w * y); }
-    constexpr auto width() const noexcept { return w; }
-    constexpr auto height() const noexcept { return h; }
-    constexpr auto size() const noexcept { return w * h; }
-
-protected:
-    T* data;
-    std::size_t w, h;
-};*/
 
 int jwdpmi_main(std::deque<std::string>)
 {
     std::cout << "Hello, World!" << std::endl;
     dpmi::breakpoint();
-    
-    io::keyboard keyb { std::make_shared<io::ps2_interface>() };
 
+    auto v = new video::vbe2 { };
+    //auto v = video::get_vbe_interface();
+    auto info = v->get_vbe_info();
+
+    std::cout << std::hex << info.vbe_version << '\n';
+    std::cout << info.oem_vendor_name << '\n';
+    std::cout << info.oem_product_name << '\n';
+    std::cout << info.oem_string << '\n';
+    
+    const auto& modelist = v->get_modes();
+    const auto& mode = [&modelist]
+    {
+        for (const auto& mode : modelist)
+        {
+            auto& m = mode.second;
+            if (m.resolution_x == 640 &&
+                m.resolution_y == 480 &&
+                //m.memory_model == video::vbe_mode_info::direct &&
+                m.bits_per_pixel == 8 &&
+                m.attr.lfb_mode_available) return mode;
+        }
+        throw std::runtime_error("mode not found.");
+    }();
+    video::vbe_mode vmode { };
+    vmode.mode = mode.first;
+    vmode.use_lfb_mode = true;
+    v->set_mode(vmode);
+
+    using pixel = video::px8;
+    std::size_t pixel_size = mode.second.bits_per_pixel / 8;
+    std::size_t line_size = mode.second.linear_bytes_per_scanline / pixel_size;
+    std::size_t lfb_size = line_size * mode.second.resolution_y * mode.second.linear_num_image_pages;
+    dpmi::device_memory<pixel> screen_ptr { lfb_size, mode.second.physical_base_ptr };
+    matrix<pixel> screen { line_size, mode.second.resolution_y, screen_ptr.get_ptr() };
+    auto r = screen.range({ 0,0 }, { mode.second.resolution_x, mode.second.resolution_y });
+    
+    auto palette = v->get_palette();
+    v->set_palette_format(8);
+    //v->set_palette(palette);
+    
     chrono::chrono::setup_pit(true, 0x1000);
-    chrono::chrono::setup_tsc(1000);
+    chrono::chrono::setup_tsc(10000);
     using clock = chrono::tsc;
 
-    dpmi::mapped_dos_memory<std::uint16_t> screen_ptr { 80 * 50, dpmi::far_ptr16 { 0xB800, 0 } };
-    matrix<std::uint16_t> screen { 80, 50, screen_ptr.get_ptr() };
-    matrix_container<std::uint16_t> m { 80, 50 };
-    m.fill(0x1000);
+    auto last_now = clock::now();
+    float t = 0;
+    //float color = 0;
+    while (true)
+    {
+        auto now = clock::now();
+        float dt = (now - last_now).count() / 1e9f;
+        last_now = now;
 
-    auto r = m.make_range({ 5,5 }, { 70,40 });
-    r.fill(0x2000);
+        t += dt * 10;
 
+        //video::pxf value { };
+        //value.r = 0.5f + std::sin(t * 2.0f) / 2;
+        //value.b = 0.5f + std::sin(t * 3.0f) / 2;
+        //value.g = 0.5f + std::sin(t * 5.0f) / 2;
+        //value.a = 0.5f + std::sin(t * 7.0f) / 2;
+        //value.a = 1.0f;
+        pixel value = 255 * (0.5f + std::sin(t * 7.0f) / 2.0f);
+        asm("alpha_b%=:":::);
+        palette.insert(palette.begin() + 1, palette.back());
+        palette.pop_back();
+        v->set_palette(palette);
+        asm("alpha_e%=:":::);
+        r({ 320 + std::sin(t) * t, 240 + std::cos(t) * t }) = value;
+        
+        //v->schedule_display_start({80 + std::sin(t) * 40, 80 + std::cos(t) * 40 });
+    }
+
+    return 0;
+    /*
+    dpmi::mapped_dos_memory<video::text_char> screen_ptr { 80 * 50, dpmi::far_ptr16 { 0xB800, 0 } };
+    matrix<video::text_char> screen { 80, 50, screen_ptr.get_ptr() };
+
+    fixed_matrix<video::text_char, 80, 50> m { };
+    m.fill(video::text_char { ' ', 0xf, 1 });
+
+    auto r = m.range({ 5,5 }, { 70,40 });
+    r.fill(video::text_char { ' ', 0, 2 });
+
+    matrix_container<clock::time_point> time_points { r.size() };
+
+    io::keyboard keyb { std::make_shared<io::ps2_interface>() };
+    bool collision = false;
+    bool friction = true;
     vector2f delta { 0,0 };
     vector2f player { 20,20 };
+    vector2f last_player { player };
+
+    callback<void(io::key_state_pair)> key_event { [&](auto k)
+    {
+        if (k.first == io::key::c && k.second.is_down())
+        {
+            collision = !collision;
+            auto fill = collision ? video::text_char { ' ', 0xf, 4 } : video::text_char { ' ', 0xf, 1 };
+            m.range({  0,0  }, { 80,5  }).fill(fill);
+            m.range({  0,5  }, {  5,45 }).fill(fill);
+            m.range({ 75,5  }, {  5,45 }).fill(fill);
+            m.range({  5,45 }, { 75,5  }).fill(fill);
+            player.x = remainder(player.x, r.width());
+            player.y = remainder(player.y, r.height());
+            if (player.x < 0) player.x += r.width();
+            if (player.y < 0) player.y += r.height();
+        }
+        if (k.first == io::key::f && k.second.is_down()) friction = !friction;
+    } };
+    keyb.key_changed += key_event;
+
     auto last_now = clock::now();
     while (true)
     {
@@ -116,23 +149,49 @@ int jwdpmi_main(std::deque<std::string>)
         last_now = now;
 
         using namespace io;
-        keyb.update();
         vector2f new_delta { 0,0 };
-        if (keyb[key::up])      new_delta += vector2f::up();
-        if (keyb[key::down])    new_delta += vector2f::down();
-        if (keyb[key::left])    new_delta += vector2f::left();
-        if (keyb[key::right])   new_delta += vector2f::right();
+        keyb.update();
+        if (keyb[key::up])    new_delta += vector2f::up();
+        if (keyb[key::down])  new_delta += vector2f::down();
+        if (keyb[key::left])  new_delta += vector2f::left();
+        if (keyb[key::right]) new_delta += vector2f::right();
+        if (keyb[key::space]) r.fill(video::text_char{' ', 0, 2});
         if (keyb[key::esc]) break;
-        delta += new_delta * dt * .2;
-        if (delta.magnitude() > 1) delta.normalize();
 
-        r(player) = 0;
-        player += delta;
-        r(player) = 0x0F02;
-        delta -= delta * dt * 2;
+        new_delta.clamp_magnitude(1);
+        delta += new_delta * dt * 20;
+
+        r(last_player) = video::text_char{' ', 7, 0};
+        time_points(last_player) = now + std::chrono::seconds { 10 };
+        for (auto y = 0; y < time_points.height(); ++y)
+            for (auto x = 0; x < time_points.width(); ++x)
+                if (time_points(x, y) <= now) r(x, y) = video::text_char{' ', 0, 2};
+
+        player += delta * dt * 10;
+        if (collision)
+        {
+            if (player.x <= 0) delta.x = -delta.x;
+            if (player.x >= r.width()) delta.x = -delta.x;
+            if (player.y <= 0) delta.y = -delta.y;
+            if (player.y >= r.height()) delta.y = -delta.y;
+            player.clamp(vector2i { 0,0 }, r.size());
+        }
+        r(player) = video::text_char{2, 0xf, 0};
+        last_player = player;
+        if (friction) delta -= delta * dt * 2;
+
+        std::stringstream fps { };
+        fps << "FPS: " << 1 / dt;
+        auto* i { m.data() };
+        for (auto c : fps.str()) *i++ = c;
+        for (; i < m.data() + m.width();) *i++ = ' ';
+
         screen.assign(m);
         thread::yield();
     }
+
+    return 0;
+    
   /*  
     using clock = chrono::tsc;
     using ref = chrono::rtc;

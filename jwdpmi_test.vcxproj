@@ -129,6 +129,8 @@
     <ClCompile Include="lib\libjwdpmi\src\rs232.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\scancode.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\scheduler.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\vbe.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\vga.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -174,6 +176,7 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\io\keyboard.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\detail\scancode.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\rs232.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\math.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\matrix.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\split_stdint.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\thread\coroutine.h" />
@@ -184,6 +187,10 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\thread\thread.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\common.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\vector2.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\video\vbe.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\video\pixel.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\video\vbe_types.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\video\vga.h" />
     <ClInclude Include="lib\libjwdpmi\jwdpmi_config.h" />
     <ClInclude Include="lib\libjwdpmi\jwdpmi_config_default.h" />
     <ClInclude Include="tools\intellisense.h" />

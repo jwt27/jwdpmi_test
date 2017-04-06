@@ -4,7 +4,8 @@ CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
 CXXFLAGS += -O3 -flto=24 -flto-odr-type-merging
-CXXFLAGS += -march=pentium3
+CXXFLAGS += -march=pentium3 -ffast-math -mfpmath=both
+#CXXFLAGS += -march=pentium-mmx -ffast-math
 CXXFLAGS += -std=gnu++17
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += -Wno-attributes
@@ -72,6 +73,7 @@ $(OUTDIR)/$(OUTPUT): $(OBJ) libjwdpmi | $(OUTDIR)
 #	cp lib/libjwdpmi/jwdpmi_config.h lib/libjwdpmi/jwdpmi_config_default.h
 	objdump -M intel-mnemonic --insn-width=10 -C -w -d $@ > $(OUTDIR)/main.asm
 #	stubedit $@ dpmi=hdpmi32.exe
+	upx -9 $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -o $@ -MF $(@:.o=.d) $(INCLUDE) -c $< $(PIPECMD)
