@@ -29,16 +29,17 @@ int jwdpmi_main(std::deque<std::string>)
 {
     std::cout << "Hello, World!" << std::endl;
     dpmi::breakpoint();
+//    asm("rdmsr;"::"c"(0x0):"eax","edx");
 
-    auto v = new video::vbe2 { };
-    //auto v = video::get_vbe_interface();
+    //auto v = new video::vbe2 { };
+    auto v = video::get_vbe_interface();
     auto info = v->get_vbe_info();
 
     std::cout << std::hex << info.vbe_version << '\n';
     std::cout << info.oem_vendor_name << '\n';
     std::cout << info.oem_product_name << '\n';
     std::cout << info.oem_string << '\n';
-    
+     /*
     const auto& modelist = v->get_modes();
     const auto& mode = [&modelist]
     {
@@ -47,9 +48,10 @@ int jwdpmi_main(std::deque<std::string>)
             auto& m = mode.second;
             if (m.resolution_x == 640 &&
                 m.resolution_y == 480 &&
-                //m.memory_model == video::vbe_mode_info::direct &&
-                m.bits_per_pixel == 8 &&
-                m.attr.lfb_mode_available) return mode;
+                m.memory_model == video::vbe_mode_info::direct &&
+                m.bits_per_pixel == 16 &&
+                m.attr.lfb_mode_available &&
+                m.linear_num_image_pages >= 2) return mode;
         }
         throw std::runtime_error("mode not found.");
     }();
@@ -58,16 +60,23 @@ int jwdpmi_main(std::deque<std::string>)
     vmode.use_lfb_mode = true;
     v->set_mode(vmode);
 
-    using pixel = video::px8;
+    using pixel = video::px16;
     std::size_t pixel_size = mode.second.bits_per_pixel / 8;
     std::size_t line_size = mode.second.linear_bytes_per_scanline / pixel_size;
     std::size_t lfb_size = line_size * mode.second.resolution_y * mode.second.linear_num_image_pages;
-    dpmi::device_memory<pixel> screen_ptr { lfb_size, mode.second.physical_base_ptr };
+    dpmi::device_memory<pixel> screen_ptr { lfb_size, mode.second.physical_base_ptr, true };
     matrix<pixel> screen { line_size, mode.second.resolution_y, screen_ptr.get_ptr() };
-    auto r = screen.range({ 0,0 }, { mode.second.resolution_x, mode.second.resolution_y });
+    auto r = screen.range({ 0, 0 }, { mode.second.resolution_x, mode.second.resolution_y });
+    auto r2 = screen.range({ 0, mode.second.resolution_y }, { mode.second.resolution_x, mode.second.resolution_y });
     
-    auto palette = v->get_palette();
-    v->set_palette_format(8);
+    //v->set_scanline_length(mode.second.resolution_x);
+
+    matrix_container<video::px16> bg { mode.second.resolution_x, mode.second.resolution_y };
+    matrix_container<video::pxf> fg { mode.second.resolution_x, mode.second.resolution_y };
+    fg.fill(std::move(video::pxf { 0,0,0,0 }));
+
+    //auto palette = v->get_palette();
+    //v->set_palette_format(8);
     //v->set_palette(palette);
     
     chrono::chrono::setup_pit(true, 0x1000);
@@ -77,33 +86,53 @@ int jwdpmi_main(std::deque<std::string>)
     auto last_now = clock::now();
     float t = 0;
     //float color = 0;
+
     while (true)
     {
+        v->schedule_display_start(r.position());
+        std::swap(r, r2);
+
         auto now = clock::now();
         float dt = (now - last_now).count() / 1e9f;
         last_now = now;
 
-        t += dt * 10;
+        t += dt;
 
-        //video::pxf value { };
-        //value.r = 0.5f + std::sin(t * 2.0f) / 2;
-        //value.b = 0.5f + std::sin(t * 3.0f) / 2;
-        //value.g = 0.5f + std::sin(t * 5.0f) / 2;
-        //value.a = 0.5f + std::sin(t * 7.0f) / 2;
-        //value.a = 1.0f;
-        pixel value = 255 * (0.5f + std::sin(t * 7.0f) / 2.0f);
+        asm("fill_b%=:":::);
+        bg.fill(std::move(video::pxf { 0.25f + std::sin(t) / 4.0f, 0.25f + std::sin(t + M_PI) / 4.0f, 0.25f + std::sin(t + M_PI / 2) / 4.0f, 1 }));
+        asm("fill_e%=:":::);
+
+        video::pxf value { };
+        value.r = 0.5f + std::sin(t * 2.0f) / 2;
+        value.b = 0.5f + std::sin(t * 3.0f) / 2;
+        value.g = 0.5f + std::sin(t * 5.0f) / 2;
+        value.a = 0.75f + std::sin(t * 7.0f) / 4;
+        fg.at({ 320 + std::sin(t * 10) * t*5, 240 + std::cos(t * 10) * t*5 }) = value;
+        
         asm("alpha_b%=:":::);
-        palette.insert(palette.begin() + 1, palette.back());
-        palette.pop_back();
-        v->set_palette(palette);
+        for (auto y = 0; y < 480; ++y)
+            for (auto x = 0; x < 640; ++x)
+                bg(x, y).blend(fg(x, y));
         asm("alpha_e%=:":::);
-        r({ 320 + std::sin(t) * t, 240 + std::cos(t) * t }) = value;
+        //if (v->get_scheduled_display_start_status())
+        //{
+            for (auto y = 0; y < 480; ++y)
+                for (auto x = 0; x < 640; ++x)
+                    r(x, y) = std::move(bg(x, y));
+        //    v->schedule_display_start({ 0,0 });
+        //}
+        asm("assign_e%=:":::);
         
         //v->schedule_display_start({80 + std::sin(t) * 40, 80 + std::cos(t) * 40 });
     }
 
     return 0;
-    /*
+    */
+
+    chrono::chrono::setup_pit(true, 0x1000);
+    chrono::chrono::setup_tsc(10000);
+    using clock = chrono::tsc;
+
     dpmi::mapped_dos_memory<video::text_char> screen_ptr { 80 * 50, dpmi::far_ptr16 { 0xB800, 0 } };
     matrix<video::text_char> screen { 80, 50, screen_ptr.get_ptr() };
 
@@ -161,8 +190,8 @@ int jwdpmi_main(std::deque<std::string>)
         new_delta.clamp_magnitude(1);
         delta += new_delta * dt * 20;
 
-        r(last_player) = video::text_char{' ', 7, 0};
-        time_points(last_player) = now + std::chrono::seconds { 10 };
+        r.at(last_player) = video::text_char{' ', 7, 0};
+        time_points.at(last_player) = now + std::chrono::seconds { 10 };
         for (auto y = 0; y < time_points.height(); ++y)
             for (auto x = 0; x < time_points.width(); ++x)
                 if (time_points(x, y) <= now) r(x, y) = video::text_char{' ', 0, 2};
@@ -176,7 +205,7 @@ int jwdpmi_main(std::deque<std::string>)
             if (player.y >= r.height()) delta.y = -delta.y;
             player.clamp(vector2i { 0,0 }, r.size());
         }
-        r(player) = video::text_char{2, 0xf, 0};
+        r.at(player) = video::text_char{2, 0xf, 0};
         last_player = player;
         if (friction) delta -= delta * dt * 2;
 

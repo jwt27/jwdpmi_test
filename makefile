@@ -1,4 +1,3 @@
-CC := gcc
 CXX := g++
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
@@ -14,6 +13,8 @@ CXXFLAGS += -Wno-attributes
 # CXXFLAGS += -Wsuggest-attribute=const
 # CXXFLAGS += -Wsuggest-final-types -Wsuggest-final-methods 
 CXXFLAGS += -Wsuggest-override
+CXXFLAGS += -Wattributes
+# CXXFLAGS += -Woverloaded-virtual
 # CXXFLAGS += -Wpadded
 # CXXFLAGS += -Wpacked
 # CXXFLAGS += -fno-omit-frame-pointer
@@ -23,6 +24,7 @@ CXXFLAGS += -mcld
 CXXFLAGS += -mpreferred-stack-boundary=4
 CXXFLAGS += -mstackrealign
 CXXFLAGS += -DNDEBUG
+CXXFLAGS += -save-temps
 
 #LDFLAGS += -Wl,-Map,bin/debug.map
 
@@ -40,7 +42,7 @@ DEP := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.d)
 VPATH := .:$(SRCDIR)
 
 ifneq (,$findstr(vs,$(MAKECMDGOALS)))
-    PIPECMD := 2>&1 | gcc2vs
+    #PIPECMD := 2>&1 | gcc2vs
 else 
     PIPECMD :=
 endif
@@ -73,7 +75,7 @@ $(OUTDIR)/$(OUTPUT): $(OBJ) libjwdpmi | $(OUTDIR)
 #	cp lib/libjwdpmi/jwdpmi_config.h lib/libjwdpmi/jwdpmi_config_default.h
 	objdump -M intel-mnemonic --insn-width=10 -C -w -d $@ > $(OUTDIR)/main.asm
 #	stubedit $@ dpmi=hdpmi32.exe
-	upx -9 $@
+	upx --best $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -o $@ -MF $(@:.o=.d) $(INCLUDE) -c $< $(PIPECMD)
