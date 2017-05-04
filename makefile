@@ -2,7 +2,7 @@ CXX := g++
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
-CXXFLAGS += -O3 -flto=24 -flto-odr-type-merging
+CXXFLAGS += -O3 -flto=128 -flto-odr-type-merging
 CXXFLAGS += -march=pentium3 -ffast-math -mfpmath=both
 #CXXFLAGS += -march=pentium-mmx -ffast-math
 CXXFLAGS += -std=gnu++17
@@ -23,8 +23,9 @@ CXXFLAGS += -fnon-call-exceptions -fasynchronous-unwind-tables
 CXXFLAGS += -mcld
 CXXFLAGS += -mpreferred-stack-boundary=4
 CXXFLAGS += -mstackrealign
+CXXFLAGS += -fstrict-volatile-bitfields
 CXXFLAGS += -DNDEBUG
-CXXFLAGS += -save-temps
+#CXXFLAGS += -save-temps
 
 #LDFLAGS += -Wl,-Map,bin/debug.map
 
@@ -42,7 +43,7 @@ DEP := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.d)
 VPATH := .:$(SRCDIR)
 
 ifneq (,$findstr(vs,$(MAKECMDGOALS)))
-    #PIPECMD := 2>&1 | gcc2vs
+    PIPECMD := 2>&1 | gcc2vs
 else 
     PIPECMD :=
 endif
@@ -54,7 +55,7 @@ all: $(OUTDIR)/$(OUTPUT)
 clean:
 	rm -f $(OBJ) $(DEP) $(OUTDIR)/$(OUTPUT)
 	$(MAKE) clean -C lib/libjwdpmi/
-    
+
 vs:
 	@echo "void main(){}" > _temp.cpp
 	$(CXX) -dM -E $(CXXFLAGS) _temp.cpp > tools/gcc_defines.h
@@ -62,7 +63,7 @@ vs:
 
 export CC CXX CXXFLAGS PIPECMD
 libjwdpmi:
-	$(MAKE) -C lib/libjwdpmi/
+	+$(MAKE) -C lib/libjwdpmi/
 
 $(OUTDIR): 
 	mkdir -p $(OUTDIR)

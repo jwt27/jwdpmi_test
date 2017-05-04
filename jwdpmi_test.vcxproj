@@ -93,7 +93,7 @@
     <RemoteCleanCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh clean"</RemoteCleanCommandLine>
     <NMakeForcedIncludes>$(ProjectDir)\tools\intellisense.h</NMakeForcedIncludes>
     <AdditionalOptions>-std=gnu++17 /u /X /std:c++latest /experimental</AdditionalOptions>
-    <NMakeIncludeSearchPath>$(ProjectDir)\lib\libjwdpmi\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\i586-pc-msdosdjgpp;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\backward;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include-fixed;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\sys-include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\include;$(ProjectDir)\include</NMakeIncludeSearchPath>
+    <NMakeIncludeSearchPath>$(ProjectDir)\lib\libjwdpmi\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/include/c++/7.1.0;$(MSYS2_ROOT)\$(MSYS2_DJGPP)/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/include/c++/7.1.0/i586-pc-msdosdjgpp;$(MSYS2_ROOT)\$(MSYS2_DJGPP)/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/include/c++/7.1.0/backward;$(MSYS2_ROOT)\$(MSYS2_DJGPP)/lib/gcc/i586-pc-msdosdjgpp/7.1.0/include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)/lib/gcc/i586-pc-msdosdjgpp/7.1.0/include-fixed;$(MSYS2_ROOT)\$(MSYS2_DJGPP)/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/sys-include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/include;$(ProjectDir)\include</NMakeIncludeSearchPath>
     <RemoteBuildOutputs>$(RemoteRootDir)/$(ProjectName)/bin/dpmitest.exe</RemoteBuildOutputs>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
@@ -106,7 +106,7 @@
     <RemoteCleanCommandLine>bash -lc "cd $(RemoteProjectDir);./make_vs.sh clean"</RemoteCleanCommandLine>
     <NMakeForcedIncludes>$(ProjectDir)\tools\intellisense.h</NMakeForcedIncludes>
     <AdditionalOptions>-std=gnu++17 /u /X /std:c++latest /experimental</AdditionalOptions>
-    <NMakeIncludeSearchPath>$(ProjectDir)\lib\libjwdpmi\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\i586-pc-msdosdjgpp;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include\c++\backward;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\lib\gcc\i586-pc-msdosdjgpp\6.1.0\include-fixed;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\sys-include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)\i586-pc-msdosdjgpp\include;$(ProjectDir)\include</NMakeIncludeSearchPath>
+    <NMakeIncludeSearchPath>$(ProjectDir)\lib\libjwdpmi\include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/include/c++/7.1.0;$(MSYS2_ROOT)\$(MSYS2_DJGPP)/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/include/c++/7.1.0/i586-pc-msdosdjgpp;$(MSYS2_ROOT)\$(MSYS2_DJGPP)/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/include/c++/7.1.0/backward;$(MSYS2_ROOT)\$(MSYS2_DJGPP)/lib/gcc/i586-pc-msdosdjgpp/7.1.0/include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)/lib/gcc/i586-pc-msdosdjgpp/7.1.0/include-fixed;$(MSYS2_ROOT)\$(MSYS2_DJGPP)/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/sys-include;$(MSYS2_ROOT)\$(MSYS2_DJGPP)/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/include;$(ProjectDir)\include</NMakeIncludeSearchPath>
     <RemoteBuildOutputs>$(RemoteRootDir)/$(ProjectName)/bin/dpmitest.exe</RemoteBuildOutputs>
   </PropertyGroup>
   <ItemGroup>
@@ -122,10 +122,12 @@
     <ClCompile Include="lib\libjwdpmi\src\keyboard_streambuf.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\memory.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\mpu401.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\pci.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\ps2_interface.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\key.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\keyboard.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\main.cpp" />
+    <ClCompile Include="lib\libjwdpmi\src\realmode.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\rs232.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\scancode.cpp" />
     <ClCompile Include="lib\libjwdpmi\src\scheduler.cpp" />
@@ -152,7 +154,6 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\debug.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\detail\alloc.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\detail\cpu_exception.h" />
-    <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\detail\debug.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\detail\irq.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\dpmi.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\dpmi\cpu_exception.h" />
@@ -171,6 +172,8 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\io\ioport.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\keyboard_interface.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\mpu401.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\io\packet_driver.h" />
+    <ClInclude Include="lib\libjwdpmi\include\jw\io\pci.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\ps2_interface.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\key.h" />
     <ClInclude Include="lib\libjwdpmi\include\jw\io\keyboard.h" />
@@ -193,6 +196,7 @@
     <ClInclude Include="lib\libjwdpmi\include\jw\video\vga.h" />
     <ClInclude Include="lib\libjwdpmi\jwdpmi_config.h" />
     <ClInclude Include="lib\libjwdpmi\jwdpmi_config_default.h" />
+    <ClInclude Include="src\3dfx.h" />
     <ClInclude Include="tools\intellisense.h" />
   </ItemGroup>
   <ItemGroup>

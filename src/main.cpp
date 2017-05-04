@@ -1,6 +1,7 @@
 #include <iostream>
 #include <deque>
 #include <string>
+#include <string_view>
 #include <experimental/vector>
 #include <jw/dpmi/irq.h>
 #include <jw/io/ioport.h>
@@ -17,6 +18,7 @@
 #include <jw/vector2.h>
 #include <jw/matrix.h>
 #include <jw/io/mpu401.h>
+#include <jw/io/pci.h>
 #include <jw/video/pixel.h>
 #include <jw/video/vbe.h>
 #include <jw/math.h>
@@ -25,11 +27,8 @@
 
 using namespace jw;
 
-int jwdpmi_main(std::deque<std::string>)
+void vbe_test()
 {
-    std::cout << "Hello, World!" << std::endl;
-    dpmi::breakpoint();
-//    asm("rdmsr;"::"c"(0x0):"eax","edx");
 
     //auto v = new video::vbe2 { };
     auto v = video::get_vbe_interface();
@@ -39,7 +38,7 @@ int jwdpmi_main(std::deque<std::string>)
     std::cout << info.oem_vendor_name << '\n';
     std::cout << info.oem_product_name << '\n';
     std::cout << info.oem_string << '\n';
-     /*
+
     const auto& modelist = v->get_modes();
     const auto& mode = [&modelist]
     {
@@ -68,17 +67,20 @@ int jwdpmi_main(std::deque<std::string>)
     matrix<pixel> screen { line_size, mode.second.resolution_y, screen_ptr.get_ptr() };
     auto r = screen.range({ 0, 0 }, { mode.second.resolution_x, mode.second.resolution_y });
     auto r2 = screen.range({ 0, mode.second.resolution_y }, { mode.second.resolution_x, mode.second.resolution_y });
-    
-    //v->set_scanline_length(mode.second.resolution_x);
 
-    matrix_container<video::px16> bg { mode.second.resolution_x, mode.second.resolution_y };
-    matrix_container<video::pxf> fg { mode.second.resolution_x, mode.second.resolution_y };
-    fg.fill(std::move(video::pxf { 0,0,0,0 }));
+    //v->set_scanline_length(mode.second.resolution_x);
+    auto resx = 640;// mode.second.resolution_x;
+    auto resy = 480;// mode.second.resolution_y;
+
+    matrix_container<video::pxf> bg { resx, resy };
+    matrix_container<video::pxf> fg { resx, resy };
+
+    fg.fill(video::pxf { 0,0,0,0 });
 
     //auto palette = v->get_palette();
     //v->set_palette_format(8);
     //v->set_palette(palette);
-    
+
     chrono::chrono::setup_pit(true, 0x1000);
     chrono::chrono::setup_tsc(10000);
     using clock = chrono::tsc;
@@ -86,10 +88,10 @@ int jwdpmi_main(std::deque<std::string>)
     auto last_now = clock::now();
     float t = 0;
     //float color = 0;
+    constexpr auto fpi = static_cast<float>(M_PI);
 
     while (true)
     {
-        v->schedule_display_start(r.position());
         std::swap(r, r2);
 
         auto now = clock::now();
@@ -99,36 +101,53 @@ int jwdpmi_main(std::deque<std::string>)
         t += dt;
 
         asm("fill_b%=:":::);
-        bg.fill(std::move(video::pxf { 0.25f + std::sin(t) / 4.0f, 0.25f + std::sin(t + M_PI) / 4.0f, 0.25f + std::sin(t + M_PI / 2) / 4.0f, 1 }));
+        bg.fill(video::pxf { 0.25f + std::sin(t) / 4.0f, 0.25f + std::sin(t + fpi) / 4.0f, 0.25f + std::sin(t + fpi / 2) / 4.0f, 1 });
         asm("fill_e%=:":::);
 
+        asm("clearfg_b%=:":::);
+        auto fgr = fg.range({ resx / 2 - 160, resy / 2 - 120 }, { 320,240 });
+        fgr.fill(video::pxf { 0,0,0,0 });
+        asm("clearfg_e%=:":::);
+
+        asm("drawfg_b%=:":::);
+        for (auto y = 0; y < fgr.height(); ++y)
+            for (auto x = 0; x < fgr.width(); ++x)
+            {
+                vector2f pos { x / 320.0f, y / 240.0f };
+                pos *= 2 * fpi;
+                fgr(x, y) = video::pxf { 0.5f + std::sin(t + pos.x) / 2.0f, 0.5f + std::sin(t + pos.y) / 2.0f, 0.5f + std::sin(t + pos.x + pos.y) / 2.0f,  0.5f + std::sin(t + pos.x * pos.y) / 2.0f };
+            }
+        asm("drawfg_e%=:":::);
+
+        /*
         video::pxf value { };
         value.r = 0.5f + std::sin(t * 2.0f) / 2;
         value.b = 0.5f + std::sin(t * 3.0f) / 2;
         value.g = 0.5f + std::sin(t * 5.0f) / 2;
         value.a = 0.75f + std::sin(t * 7.0f) / 4;
         fg.at({ 320 + std::sin(t * 10) * t*5, 240 + std::cos(t * 10) * t*5 }) = value;
-        
+        */
+
         asm("alpha_b%=:":::);
         for (auto y = 0; y < 480; ++y)
             for (auto x = 0; x < 640; ++x)
                 bg(x, y).blend(fg(x, y));
         asm("alpha_e%=:":::);
-        //if (v->get_scheduled_display_start_status())
-        //{
+        if (v->get_scheduled_display_start_status())
+        {
             for (auto y = 0; y < 480; ++y)
                 for (auto x = 0; x < 640; ++x)
                     r(x, y) = std::move(bg(x, y));
-        //    v->schedule_display_start({ 0,0 });
-        //}
+            v->schedule_display_start(r.position());
+        }
         asm("assign_e%=:":::);
-        
+
         //v->schedule_display_start({80 + std::sin(t) * 40, 80 + std::cos(t) * 40 });
     }
+}
 
-    return 0;
-    */
-
+void game()
+{
     chrono::chrono::setup_pit(true, 0x1000);
     chrono::chrono::setup_tsc(10000);
     using clock = chrono::tsc;
@@ -218,36 +237,16 @@ int jwdpmi_main(std::deque<std::string>)
         screen.assign(m);
         thread::yield();
     }
+}
 
-    return 0;
+int jwdpmi_main(std::deque<std::string_view>)
+{
+    std::cout << "Hello, World!" << std::endl;
+    dpmi::breakpoint();
     
-  /*  
-    using clock = chrono::tsc;
-    using ref = chrono::rtc;
-    auto ref_now = ref::now();
-    auto now = clock::now();
-    auto last_now = now;
-    auto t = now;
-    double average = 0;
-    for (auto i = 0; i < 1000000; ++i)
-    {
-        t += 100ms;
-        //std::cout << "now=" << now.time_since_epoch().count() << "\t t=" << t.time_since_epoch().count() << '\n';
-        thread::yield_until(t);
-        //while (clock::now() < t) { }
-        //thread::yield();
-        last_now = now;
-        auto last_ref = ref_now;
-        now = clock::now();
-        ref_now = ref::now();
-        std::cout << "i=" << i << ", \terror=" << (now - t).count() << ", \tcycle=" << (ref_now - last_ref).count() << '\n';
-        average += (ref_now - last_ref).count();
-        std::cout << "average cycle=" << average / (i+1) << '\n';
-    }
-    std::cout << "cycle=" << (now - last_now).count() << "\terror=" << (now - t).count()/1000000 << '\n';
-*/
-    //dos_mem_test();
-
+    game();
+    vbe_test();
+    
     return 0;
     /*
     {
