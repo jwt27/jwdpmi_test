@@ -4,29 +4,31 @@
     {
       "appliesTo": "makefile",
       "type": "launch",
-      "taskName": "build",
+      "taskName": "makefile-build",
       "contextType": "build",
       "workingDirectory": "${workspaceRoot}",
       "command": "${env.MSYS2_ROOT}/usr/bin/bash",
       "args": [
         "-lc \"./make_vs.sh -j24 all\""
-      ]
+      ],
+      "output": "bin/dpmitest.exe"
     },
     {
       "appliesTo": "makefile",
       "type": "launch",
-      "taskName": "rebuild",
+      "taskName": "makefile-rebuild",
       "contextType": "rebuild",
       "workingDirectory": "${workspaceRoot}",
       "command": "${env.MSYS2_ROOT}/usr/bin/bash",
       "args": [
         "-lc \"./make_vs.sh -B -j24 all\""
-      ]
+      ],
+      "output": "bin/dpmitest.exe"
     },
     {
       "appliesTo": "makefile",
       "type": "launch",
-      "taskName": "clean",
+      "taskName": "makefile-clean",
       "contextType": "clean",
       "workingDirectory": "${workspaceRoot}",
       "command": "${env.MSYS2_ROOT}/usr/bin/bash",

@@ -7,10 +7,12 @@
       "name": "makefile",
       "project": "makefile",
       "cwd": "${workspaceRoot}",
-      "program": "bin/dpmitest.exe",
+      "program": "${workspaceRoot}/bin/dpmitest.exe",
       "MIMode": "gdb",
-      "miDebuggerPath": "${env.MSYS2_ROOT}/${env.MSYS2_DJGPP}/bin/i586-pc-msdosdjgpp-gdb.exe",
-      "externalConsole": true
+      "miDebuggerPath": "${workspaceRoot}/tools/gdb.bat",
+      "externalConsole": true,
+      "customLaunchSetupCommands": [ { "text": "target remote :3333" } ],
+      "targetArchitecture": "x86"
     }
   ]
 }

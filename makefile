@@ -22,7 +22,7 @@ CXXFLAGS += -mcld
 CXXFLAGS += -mpreferred-stack-boundary=4
 CXXFLAGS += -mstackrealign
 CXXFLAGS += -fstrict-volatile-bitfields
-CXXFLAGS += -DNDEBUG
+CXXFLAGS += -D_DEBUG
 #CXXFLAGS += -save-temps
 
 #LDFLAGS += -Wl,-Map,bin/debug.map
