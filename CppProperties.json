@@ -1,0 +1,39 @@
+{
+  "projectName": "jwdpmi_test",
+  "environments": [
+    {
+      "MSYSTEM": "MINGW64",
+      "CHERE_INVOKING": "1"
+    }
+  ],
+  "configurations": [
+    {
+      "name": "Default",
+      "includePath": [
+        "${workspaceRoot}/lib/libjwdpmi/include",
+        "${env.MSYS2_ROOT}/${env.MSYS2_DJGPP}/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/include/c++/7.1.0",
+        "${env.MSYS2_ROOT}/${env.MSYS2_DJGPP}/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/include/c++/7.1.0/i586-pc-msdosdjgpp",
+        "${env.MSYS2_ROOT}/${env.MSYS2_DJGPP}/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/include/c++/7.1.0/backward",
+        "${env.MSYS2_ROOT}/${env.MSYS2_DJGPP}/lib/gcc/i586-pc-msdosdjgpp/7.1.0/include",
+        "${env.MSYS2_ROOT}/${env.MSYS2_DJGPP}/lib/gcc/i586-pc-msdosdjgpp/7.1.0/include-fixed",
+        "${env.MSYS2_ROOT}/${env.MSYS2_DJGPP}/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/sys-include",
+        "${env.MSYS2_ROOT}/${env.MSYS2_DJGPP}/lib/gcc/i586-pc-msdosdjgpp/7.1.0/../../../../i586-pc-msdosdjgpp/include"
+      ],
+      "intelliSenseMode": "windows-clang-x86",
+      "forcedInclude": [ "${workspaceRoot}/tools/intellisense.h" ],
+      //"compilerSwitches": "-std=gnu++17"
+      "undefines": [
+        "__cpp_exceptions",
+        "__cpp_enumerator_attributes",
+        "__cpp_binary_literals",
+        "__cpp_variadic_templates",
+        "__STDC_HOSTED__",
+        "__cpp_rvalue_references",
+        "__cpp_nsdmi",
+        "__cpp_rtti",
+        "__EXCEPTIONS",
+        "__CHAR32_TYPE__"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "cppdbg",
+      "name": "makefile",
+      "project": "makefile",
+      "cwd": "${workspaceRoot}",
+      "program": "bin/dpmitest.exe",
+      "MIMode": "gdb",
+      "miDebuggerPath": "${env.MSYS2_ROOT}/${env.MSYS2_DJGPP}/bin/i586-pc-msdosdjgpp-gdb.exe",
+      "externalConsole": true
+    }
+  ]
+}

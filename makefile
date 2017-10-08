@@ -7,13 +7,11 @@ CXXFLAGS += -march=pentium3 -ffast-math -mfpmath=both
 #CXXFLAGS += -march=pentium-mmx -ffast-math
 CXXFLAGS += -std=gnu++17
 CXXFLAGS += -Wall -Wextra
-CXXFLAGS += -Wno-attributes
 # CXXFLAGS += -Wdisabled-optimization -Winline 
 # CXXFLAGS += -Wsuggest-attribute=pure 
 # CXXFLAGS += -Wsuggest-attribute=const
 # CXXFLAGS += -Wsuggest-final-types -Wsuggest-final-methods 
 CXXFLAGS += -Wsuggest-override
-CXXFLAGS += -Wattributes
 # CXXFLAGS += -Woverloaded-virtual
 # CXXFLAGS += -Wpadded
 # CXXFLAGS += -Wpacked
@@ -42,7 +40,7 @@ OBJ := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 DEP := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.d)
 VPATH := .:$(SRCDIR)
 
-ifneq (,$findstr(vs,$(MAKECMDGOALS)))
+ifneq ($(findstring vs,$(MAKECMDGOALS)),)
     PIPECMD := 2>&1 | gcc2vs
 else 
     PIPECMD :=
