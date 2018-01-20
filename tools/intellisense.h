@@ -2,6 +2,14 @@
 
 #ifdef __INTELLISENSE__
 
+#if (__cplusplus < 201703L)
+#pragma warning "Intellisense does not support C++17"
+#endif
+
+#if (__cplusplus < 201402L)
+#pragma error "Intellisense is not parsing in C++14 mode"
+#endif
+
 #undef __cplusplus
 #undef __cpp_attributes
 #undef __cpp_aggregate_nsdmi
