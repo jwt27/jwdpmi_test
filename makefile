@@ -2,7 +2,7 @@ CXX := g++
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
-CXXFLAGS += -O3 -flto=128 -flto-odr-type-merging
+CXXFLAGS += -O3 -flto -flto-odr-type-merging
 CXXFLAGS += -march=pentium3 -ffast-math -mfpmath=both
 #CXXFLAGS += -march=pentium-mmx -ffast-math
 CXXFLAGS += -std=gnu++17

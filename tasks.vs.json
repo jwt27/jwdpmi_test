@@ -9,7 +9,7 @@
       "workingDirectory": "${workspaceRoot}",
       "command": "${env.MSYS2_ROOT}/usr/bin/bash",
       "args": [
-        "-lc \"./make_vs.sh -j24 all\""
+        "-lc \"./make_vs.sh all\""
       ],
       "output": "bin/dpmitest.exe"
     },
@@ -21,7 +21,7 @@
       "workingDirectory": "${workspaceRoot}",
       "command": "${env.MSYS2_ROOT}/usr/bin/bash",
       "args": [
-        "-lc \"./make_vs.sh -B -j24 all\""
+        "-lc \"./make_vs.sh -B all\""
       ],
       "output": "bin/dpmitest.exe"
     },
