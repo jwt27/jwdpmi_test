@@ -61,7 +61,7 @@ vs:
 
 export CC CXX CXXFLAGS PIPECMD
 libjwdpmi:
-	+$(MAKE) -C lib/libjwdpmi/
+	$(MAKE) -C lib/libjwdpmi/
 
 $(OUTDIR): 
 	mkdir -p $(OUTDIR)
