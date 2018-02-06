@@ -69,8 +69,8 @@ void vbe_test()
     auto r2 = screen.range({ 0, mode.second.resolution_y }, { mode.second.resolution_x, mode.second.resolution_y });
 
     //v->set_scanline_length(mode.second.resolution_x);
-    auto resx = 640;// mode.second.resolution_x;
-    auto resy = 480;// mode.second.resolution_y;
+    std::size_t resx = 640;// mode.second.resolution_x;
+    std::size_t resy = 480;// mode.second.resolution_y;
 
     matrix_container<video::pxf> bg { resx, resy };
     matrix_container<video::pxf> fg { resx, resy };
@@ -243,11 +243,19 @@ int jwdpmi_main(std::deque<std::string_view>)
 {
     std::cout << "Hello, World!" << std::endl;
     dpmi::breakpoint();
-    
+
+    thread::coroutine<char(const std::string&)> get_chars { [](auto& self, const std::string& str)
+    {
+        for (auto c : str) self.yield(c);
+    } };
+
+    get_chars->start("hello world.");
+    while (get_chars->try_await()) std::cout << get_chars->await();
+
     game();
     vbe_test();
     
-    return 0;
+    
     /*
     {
         dpmi::trap_mask no_trace { };
@@ -280,8 +288,9 @@ int jwdpmi_main(std::deque<std::string_view>)
         }
     };
 
-    thread::task<void()> thr1 { test_thread };
-    thread::task<void()> thr2 { test_thread };
+    std::function f { test_thread };
+    thread::task thr1 { f };
+    thread::task thr2 { f };
 
     thr1->start();
     thr2->start();
@@ -323,9 +332,6 @@ int jwdpmi_main(std::deque<std::string_view>)
         std::clog << std::hex << (unsigned)p << "\n";
     } */
 
-    while (true) { thread::yield(); }
-    return 0;
-
     io::rs232_config cfg { };
     cfg.set_com_port(io::com2);
     //cfg.flow_control = io::rs232_config::rts_cts;
@@ -333,7 +339,7 @@ int jwdpmi_main(std::deque<std::string_view>)
     s << "hello world!\r\n" << std::flush;
 
 
-    auto chat = [](auto& in, auto& out)
+    auto chat = [](std::istream& in, std::ostream& out)
     {
         std::string input { };
         while (in.good())
@@ -344,8 +350,8 @@ int jwdpmi_main(std::deque<std::string_view>)
             thread::yield();
         }
     };
-    thread::task<void(std::istream& in, std::ostream& out)> t1 { chat };
-    thread::task<void(std::istream& in, std::ostream& out)> t2 { chat };
+    thread::task t1 { chat };
+    thread::task t2 { chat };
 
     t1->start(s, std::cout);
     t2->start(std::cin, s);
