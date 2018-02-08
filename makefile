@@ -64,7 +64,7 @@ vs:
 	$(CXX) -dM -E $(CXXFLAGS) _temp.cpp > tools/gcc_defines.h
 	@rm _temp.*
 
-export CC CXX CXXFLAGS PIPECMD
+export CC CXX AR CXXFLAGS PIPECMD
 libjwdpmi:
 	cp -u lib/jwdpmi_config.h lib/libjwdpmi/jwdpmi_config.h
 	$(MAKE) -C lib/libjwdpmi/
