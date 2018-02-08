@@ -1,4 +1,9 @@
-CXX := g++
+program_exists = $(shell which $(1) > /dev/null && echo $(1))
+pick_tool = $(or $(call program_exists, $(join i586-pc-msdosdjgpp-,$(1))), $(1))
+
+CXX := $(or $(shell echo $$CC), $(call pick_tool, g++))
+AR := $(or $(shell echo $$AR), $(call pick_tool, ar))
+OBJDUMP := $(or $(shell echo $$AR), $(call pick_tool, objdump))
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
@@ -73,7 +78,7 @@ $(OBJDIR):
 $(OUTDIR)/$(OUTPUT): $(OBJ) libjwdpmi | $(OUTDIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LDFLAGS) $(LIBS) $(PIPECMD)
 #	cp lib/libjwdpmi/jwdpmi_config.h lib/libjwdpmi/jwdpmi_config_default.h
-	objdump -M intel-mnemonic --insn-width=10 -C -w -d $@ > $(OUTDIR)/main.asm
+	$(OBJDUMP) -M intel-mnemonic --insn-width=10 -C -w -d $@ > $(OUTDIR)/main.asm
 #	stubedit $@ dpmi=hdpmi32.exe
 	upx --best $@
 
