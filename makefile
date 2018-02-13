@@ -7,9 +7,9 @@ OBJDUMP := $(or $(shell echo $$AR), $(call pick_tool, objdump))
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
-CXXFLAGS += -O3 -flto -flto-odr-type-merging
-CXXFLAGS += -march=pentium3 -ffast-math -mfpmath=both
-#CXXFLAGS += -march=pentium-mmx -ffast-math
+CXXFLAGS += -Og -flto -flto-odr-type-merging
+#CXXFLAGS += -march=pentium3 -ffast-math -mfpmath=both
+CXXFLAGS += -march=pentium -ffast-math
 CXXFLAGS += -std=gnu++17
 CXXFLAGS += -Wall -Wextra
 # CXXFLAGS += -Wdisabled-optimization -Winline 

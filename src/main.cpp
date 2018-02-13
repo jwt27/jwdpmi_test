@@ -13,7 +13,6 @@
 #include <jw/thread/coroutine.h>
 #include <jw/io/keyboard.h>
 #include <jw/io/ps2_interface.h>
-#include <jw/chrono/chrono.h>
 #include <jw/alloc.h>
 #include <jw/vector2.h>
 #include <jw/matrix.h>
@@ -24,6 +23,9 @@
 #include <jw/math.h>
 #include <cstdio>
 #include <cstddef>
+#include <chrono>
+#include <mutex>
+#include <shared_mutex>
 
 using namespace jw;
 
@@ -69,8 +71,8 @@ void vbe_test()
     auto r2 = screen.range({ 0, mode.second.resolution_y }, { mode.second.resolution_x, mode.second.resolution_y });
 
     //v->set_scanline_length(mode.second.resolution_x);
-    std::size_t resx = 640;// mode.second.resolution_x;
-    std::size_t resy = 480;// mode.second.resolution_y;
+    std::size_t resx = mode.second.resolution_x;
+    std::size_t resy = mode.second.resolution_y;
 
     matrix_container<video::pxf> bg { resx, resy };
     matrix_container<video::pxf> fg { resx, resy };
@@ -81,9 +83,9 @@ void vbe_test()
     //v->set_palette_format(8);
     //v->set_palette(palette);
 
-    chrono::chrono::setup_pit(true, 0x1000);
-    chrono::chrono::setup_tsc(10000);
-    using clock = chrono::tsc;
+    chrono::setup::setup_pit(true, 0x1000);
+    chrono::setup::setup_tsc(10000);
+    using clock = std::chrono::high_resolution_clock;
 
     auto last_now = clock::now();
     float t = 0;
@@ -148,9 +150,9 @@ void vbe_test()
 
 void game()
 {
-    chrono::chrono::setup_pit(true, 0x1000);
-    chrono::chrono::setup_tsc(10000);
-    using clock = chrono::tsc;
+    chrono::setup::setup_pit(true, 0x1000);
+    chrono::setup::setup_tsc(10000);
+    using clock = std::chrono::high_resolution_clock;
 
     dpmi::mapped_dos_memory<video::text_char> screen_ptr { 80 * 50, dpmi::far_ptr16 { 0xB800, 0 } };
     matrix<video::text_char> screen { 80, 50, screen_ptr.get_ptr() };
@@ -239,18 +241,50 @@ void game()
     }
 }
 
+void ref_test(auto&& var)
+{
+    using T = decltype(var);
+    std::cout << var;
+    if (std::is_const_v<std::remove_reference_t<T>>) std::cout << " (const)";
+    if (std::is_lvalue_reference_v<T>) std::cout << " (lv ref)";
+    if (std::is_rvalue_reference_v<T>) std::cout << " (rv ref)";
+    if (std::is_pointer_v<std::remove_reference_t<T>>) std::cout << " (ptr)";
+    std::cout << '\n';
+}
+
 int jwdpmi_main(std::deque<std::string_view>)
 {
     std::cout << "Hello, World!" << std::endl;
     dpmi::breakpoint();
 
-    thread::coroutine<char(const std::string&)> get_chars { [](auto& self, const std::string& str)
     {
-        for (auto c : str) self.yield(c);
-    } };
+        io::rs232_config cfg { };
+        cfg.set_com_port(io::com1);
+        //cfg.flow_control = io::rs232_config::rts_cts;
+        io::rs232_stream s { cfg };
 
-    get_chars->start("hello world.");
-    while (get_chars->try_await()) std::cout << get_chars->await();
+        s << "hello world!\r\n" << std::flush;
+
+        std::string str;
+        do
+        {
+            std::getline(std::cin, str);
+            s << str << std::endl;
+            std::getline(s, str);
+            std::cout << str << std::endl;
+        } while (str != "quit");
+    }
+    return 0;
+
+    {
+        auto get_chars = thread::make_coroutine<char>([](const std::string& str)
+        {
+            for (auto&& c : str) thread::coroutine_yield(c);
+        });
+
+        get_chars->start("hello world.");
+        while (get_chars->try_await()) std::cout << get_chars->await() << std::flush;
+    }
 
     game();
     vbe_test();
@@ -277,7 +311,7 @@ int jwdpmi_main(std::deque<std::string_view>)
 
     std::cout << "trace enabled again!\n";*/
 
-    
+    /*
     auto test_thread = []()
     {
         while (true)
@@ -296,6 +330,7 @@ int jwdpmi_main(std::deque<std::string_view>)
     thr2->start();
     thr1->await();
     thr2->await();
+    */
 
     std::string input { };
      
@@ -333,19 +368,23 @@ int jwdpmi_main(std::deque<std::string_view>)
     } */
 
     io::rs232_config cfg { };
-    cfg.set_com_port(io::com2);
+    cfg.set_com_port(io::com1);
     //cfg.flow_control = io::rs232_config::rts_cts;
     io::rs232_stream s { cfg };
     s << "hello world!\r\n" << std::flush;
 
-
-    auto chat = [](std::istream& in, std::ostream& out)
+    std::mutex m;
+    auto chat = [&m](std::istream& in, std::ostream& out)
     {
         std::string input { };
         while (in.good())
         {
             std::getline(in, input);
-            out << "you said: " << input << "\r\n" << std::flush;
+            {
+                std::scoped_lock<std::mutex> { m };
+                out << "you said: " << input << "\r\n" << std::flush;
+                thread::yield();
+            }
             if (input.substr(0, 4) == "quit") break;
             thread::yield();
         }
