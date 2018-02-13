@@ -252,10 +252,41 @@ void ref_test(auto&& var)
     std::cout << '\n';
 }
 
+struct com_port : public io::pci_device
+{
+    com_port() : pci_device(io::pci_device::class_tag { }, 0x07, { 0x00 }, 0x02) { }
+
+    void print_addr()
+    {
+        std::cout << std::hex;
+        std::cout << "base0: 0x" << base0.read() << "\n";
+        std::cout << "base1: 0x" << base1.read() << "\n";
+        std::cout << "base2: 0x" << base2.read() << "\n";
+        std::cout << "base3: 0x" << base3.read() << "\n";
+        std::cout << "base4: 0x" << base4.read() << "\n";
+        std::cout << "base5: 0x" << base5.read() << "\n";
+        std::cout << "IRQ: 0x" << static_cast<std::uint32_t>(bus_info.read().irq) << "\n";
+    }
+};
+
+void enumerate_ports()
+{
+    std::vector<com_port> ports;
+    while (true)
+    {
+        try { ports.emplace_back(); }
+        catch (io::pci_device::device_not_found) { break; }
+        catch (io::pci_device::unsupported_function) { std::cerr << "no PCI\n"; break; }
+    }
+    for (auto&& i : ports) i.print_addr();
+}
+
 int jwdpmi_main(std::deque<std::string_view>)
 {
     std::cout << "Hello, World!" << std::endl;
     dpmi::breakpoint();
+
+    enumerate_ports();
 
     {
         io::rs232_config cfg { };
