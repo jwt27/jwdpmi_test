@@ -311,7 +311,8 @@ int jwdpmi_main(std::deque<std::string_view>)
     {
         auto get_chars = thread::make_coroutine<char>([](const std::string& str)
         {
-            for (auto&& c : str) thread::coroutine_yield(c);
+            auto yield = [](auto c) { thread::coroutine_yield<char>(c); };
+            for (auto&& c : str) yield(c);
         });
 
         get_chars->start("hello world.");
