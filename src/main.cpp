@@ -286,6 +286,7 @@ int jwdpmi_main(std::deque<std::string_view>)
     std::cout << "Hello, World!" << std::endl;
     dpmi::breakpoint();
 
+    /*
     enumerate_ports();
 
     {
@@ -305,7 +306,7 @@ int jwdpmi_main(std::deque<std::string_view>)
             std::cout << str << std::endl;
         } while (str != "quit");
     }
-    return 0;
+    return 0; */
 
     {
         auto get_chars = thread::make_coroutine<char>([](const std::string& str)

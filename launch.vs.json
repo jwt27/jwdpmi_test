@@ -4,14 +4,29 @@
   "configurations": [
     {
       "type": "cppdbg",
-      "name": "makefile",
+      "name": "Debug (local VM)",
       "project": "makefile",
       "cwd": "${workspaceRoot}",
-      "program": "${workspaceRoot}/bin/dpmitest.exe",
+      "program": "${workspaceRoot}/bin/dpmitest-debug.exe",
       "MIMode": "gdb",
       "miDebuggerPath": "${workspaceRoot}/tools/gdb.bat",
       "externalConsole": true,
       "customLaunchSetupCommands": [ { "text": "target remote :3333" } ],
+      "targetArchitecture": "x86"
+    },
+    {
+      "type": "cppdbg",
+      "name": "Debug (serial COM1)",
+      "project": "makefile",
+      "cwd": "${workspaceRoot}",
+      "program": "${workspaceRoot}/bin/dpmitest-debug.exe",
+      "MIMode": "gdb",
+      "miDebuggerPath": "${workspaceRoot}/tools/gdb.bat",
+      "externalConsole": true,
+      "customLaunchSetupCommands": [
+        { "text": "set serial baud 115200" },
+        { "text": "target remote COM1" }
+      ],
       "targetArchitecture": "x86"
     }
   ]

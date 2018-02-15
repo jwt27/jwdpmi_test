@@ -3,7 +3,8 @@ pick_tool = $(or $(call program_exists, $(join i586-pc-msdosdjgpp-,$(1))), $(1))
 
 CXX := $(or $(shell echo $$CC), $(call pick_tool, g++))
 AR := $(or $(shell echo $$AR), $(call pick_tool, ar))
-OBJDUMP := $(or $(shell echo $$AR), $(call pick_tool, objdump))
+OBJDUMP := $(or $(shell echo $$OBJDUMP), $(call pick_tool, objdump))
+STRIP := $(or $(shell echo $$STRIP), $(call pick_tool, strip))
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
@@ -35,7 +36,8 @@ CXXFLAGS += -D_DEBUG
 INCLUDE := -iquote include -Ilib/libjwdpmi/include
 LIBS := -Llib/libjwdpmi/bin -ljwdpmi
 
-OUTPUT := dpmitest.exe
+OUTPUT := dpmitest-debug.exe
+OUTPUT_PACKED := dpmitest.exe
 
 SRCDIR := src
 OUTDIR := bin
@@ -53,7 +55,7 @@ endif
 
 .PHONY: all clean vs 
 
-all: $(OUTDIR)/$(OUTPUT)
+all: $(OUTDIR)/$(OUTPUT) $(OUTDIR)/$(OUTPUT_PACKED)
 
 clean:
 	rm -f $(OBJ) $(DEP) $(OUTDIR)/$(OUTPUT)
@@ -77,9 +79,12 @@ $(OBJDIR):
 
 $(OUTDIR)/$(OUTPUT): $(OBJ) libjwdpmi | $(OUTDIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LDFLAGS) $(LIBS) $(PIPECMD)
-#	cp lib/libjwdpmi/jwdpmi_config.h lib/libjwdpmi/jwdpmi_config_default.h
 	$(OBJDUMP) -M intel-mnemonic --insn-width=10 -C -w -d $@ > $(OUTDIR)/main.asm
 #	stubedit $@ dpmi=hdpmi32.exe
+
+$(OUTDIR)/$(OUTPUT_PACKED): $(OUTDIR)/$(OUTPUT) | $(OUTDIR)
+	cp $< $@
+	$(STRIP) -S $@
 	upx --best $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
