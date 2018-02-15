@@ -7,23 +7,27 @@
       "name": "Debug (local VM)",
       "project": "makefile",
       "cwd": "${workspaceRoot}",
-      "program": "${workspaceRoot}/bin/dpmitest-debug.exe",
       "MIMode": "gdb",
       "miDebuggerPath": "${workspaceRoot}/tools/gdb.bat",
+      "program": "${workspaceRoot}/bin/dpmitest-debug.exe",
       "externalConsole": true,
-      "customLaunchSetupCommands": [ { "text": "target remote :3333" } ],
+      "customLaunchSetupCommands": [
+        { "text": "symbol-file ../bin/dpmitest-debug.exe" },
+        { "text": "target remote :3333" }
+      ],
       "targetArchitecture": "x86"
     },
     {
       "type": "cppdbg",
       "name": "Debug (serial COM1)",
       "project": "makefile",
-      "cwd": "${workspaceRoot}",
-      "program": "${workspaceRoot}/bin/dpmitest-debug.exe",
+      "cwd": "${workspaceRoot}/tools/",
       "MIMode": "gdb",
       "miDebuggerPath": "${workspaceRoot}/tools/gdb.bat",
+      "program": "${workspaceRoot}/bin/dpmitest-debug.exe",
       "externalConsole": true,
       "customLaunchSetupCommands": [
+        { "text": "symbol-file ../bin/dpmitest-debug.exe" },
         { "text": "set serial baud 115200" },
         { "text": "target remote COM1" }
       ],
