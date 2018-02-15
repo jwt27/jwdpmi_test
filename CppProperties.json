@@ -1,11 +1,5 @@
 {
   "projectName": "jwdpmi_test",
-  "environments": [
-    {
-      "MSYSTEM": "MINGW64",
-      "CHERE_INVOKING": "1"
-    }
-  ],
   "configurations": [
     {
       "name": "x86-djgpp",
