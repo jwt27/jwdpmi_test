@@ -33,4 +33,8 @@ $ make -j
 * Select `Debug (remote COM1)` as startup item in VS.
 * Build and copy `dpmitest.exe` to the target machine.
 * Launch the target with `dpmitest.exe --debug`.
-* Hit F5 in Visual Studio, and you're in.
+* Hit F5 in Visual Studio. Have fun.
+
+![debugging example](https://i.imgur.com/HsREynj.png)
+
+![debugging example](https://i.imgur.com/m5dQgs3.png)

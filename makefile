@@ -5,6 +5,9 @@ CXX := $(or $(shell echo $$CC), $(call pick_tool, g++))
 AR := $(or $(shell echo $$AR), $(call pick_tool, ar))
 OBJDUMP := $(or $(shell echo $$OBJDUMP), $(call pick_tool, objdump))
 STRIP := $(or $(shell echo $$STRIP), $(call pick_tool, strip))
+
+FDD += /a/
+
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
@@ -21,7 +24,7 @@ CXXFLAGS += -Wsuggest-override
 # CXXFLAGS += -Woverloaded-virtual
 # CXXFLAGS += -Wpadded
 # CXXFLAGS += -Wpacked
-# CXXFLAGS += -fno-omit-frame-pointer
+CXXFLAGS += -fno-omit-frame-pointer
 CXXFLAGS += -ggdb
 CXXFLAGS += -fnon-call-exceptions -fasynchronous-unwind-tables
 CXXFLAGS += -mcld
@@ -86,6 +89,7 @@ $(OUTDIR)/$(OUTPUT_PACKED): $(OUTDIR)/$(OUTPUT) | $(OUTDIR)
 	cp $< $@
 	$(STRIP) -S $@
 	upx --best $@
+	-[ -d $(FDD) ] && cp -f $@ $(FDD)/$(OUTPUT_PACKED) # copy to floppy
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -o $@ -MF $(@:.o=.d) $(INCLUDE) -c $< $(PIPECMD)

@@ -26,6 +26,7 @@
 #include <chrono>
 #include <mutex>
 #include <shared_mutex>
+#include <csignal>
 
 using namespace jw;
 
@@ -284,7 +285,6 @@ void enumerate_ports()
 int jwdpmi_main(std::deque<std::string_view>)
 {
     std::cout << "Hello, World!" << std::endl;
-    dpmi::breakpoint();
 
     /*
     enumerate_ports();
@@ -317,10 +317,14 @@ int jwdpmi_main(std::deque<std::string_view>)
 
         get_chars->start("hello world.");
         while (get_chars->try_await()) std::cout << get_chars->await() << std::flush;
+        dpmi::breakpoint();
     }
 
     game();
-    vbe_test();
+
+    std::raise(SIGABRT);
+
+    //vbe_test();
     
     
     /*
