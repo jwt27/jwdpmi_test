@@ -308,6 +308,9 @@ int jwdpmi_main(std::deque<std::string_view>)
     }
     return 0; */
 
+    dpmi::breakpoint();
+
+    while(true)
     {
         auto get_chars = thread::make_coroutine<char>([](const std::string& str)
         {
@@ -317,12 +320,12 @@ int jwdpmi_main(std::deque<std::string_view>)
 
         get_chars->start("hello world.");
         while (get_chars->try_await()) std::cout << get_chars->await() << std::flush;
-        dpmi::breakpoint();
+        std::clog << get_chars->pending_exceptions() << '\n';
     }
 
-    game();
+    //game();
 
-    std::raise(SIGABRT);
+    std::raise(SIGHUP);
 
     //vbe_test();
     
@@ -407,7 +410,7 @@ int jwdpmi_main(std::deque<std::string_view>)
     io::rs232_config cfg { };
     cfg.set_com_port(io::com1);
     //cfg.flow_control = io::rs232_config::rts_cts;
-    io::rs232_stream s { cfg };
+    auto s = io::make_rs232_stream(cfg);
     s << "hello world!\r\n" << std::flush;
 
     std::mutex m;

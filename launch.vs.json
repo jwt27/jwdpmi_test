@@ -10,12 +10,11 @@
       "MIMode": "gdb",
       "miDebuggerPath": "${workspaceRoot}/tools/gdb.bat",
       "program": "${workspaceRoot}/bin/dpmitest-debug.exe",
-      "externalConsole": true,
       "customLaunchSetupCommands": [
-        { "text": "symbol-file ../bin/dpmitest-debug.exe" },
-        { "text": "target remote :3333" }
+        { "text": "set auto-load local-gdbinit" }
       ],
-      "targetArchitecture": "x86"
+      "request": "attach",
+      "miDebuggerServerAddress": ":3333"
     },
     {
       "type": "cppdbg",
@@ -25,13 +24,12 @@
       "MIMode": "gdb",
       "miDebuggerPath": "${workspaceRoot}/tools/gdb.bat",
       "program": "${workspaceRoot}/bin/dpmitest-debug.exe",
-      "externalConsole": true,
       "customLaunchSetupCommands": [
-        { "text": "symbol-file ../bin/dpmitest-debug.exe" },
-        { "text": "set serial baud 115200" },
-        { "text": "target remote COM1" }
+        { "text": "set auto-load local-gdbinit" },
+        { "text": "set serial baud 115200" }
       ],
-      "targetArchitecture": "x86"
+      "request": "attach",
+      "miDebuggerServerAddress" : "COM1"
     }
   ]
 }

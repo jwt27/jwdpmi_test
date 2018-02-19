@@ -6,7 +6,7 @@ AR := $(or $(shell echo $$AR), $(call pick_tool, ar))
 OBJDUMP := $(or $(shell echo $$OBJDUMP), $(call pick_tool, objdump))
 STRIP := $(or $(shell echo $$STRIP), $(call pick_tool, strip))
 
-FDD += /a/
+FDD := $(or $(FDD), /a)
 
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
@@ -41,6 +41,7 @@ LIBS := -Llib/libjwdpmi/bin -ljwdpmi
 
 OUTPUT := dpmitest-debug.exe
 OUTPUT_PACKED := dpmitest.exe
+OUTPUT_DUMP := main.asm
 
 SRCDIR := src
 OUTDIR := bin
@@ -56,9 +57,9 @@ else
     PIPECMD :=
 endif
 
-.PHONY: all clean vs 
+.PHONY: all clean vs libjwdpmi
 
-all: $(OUTDIR)/$(OUTPUT) $(OUTDIR)/$(OUTPUT_PACKED)
+all: $(OUTDIR)/$(OUTPUT) $(OUTDIR)/$(OUTPUT_PACKED) $(OUTDIR)/$(OUTPUT_DUMP) $(FDD)/$(OUTPUT_PACKED)
 
 clean:
 	rm -f $(OBJ) $(DEP) $(OUTDIR)/$(OUTPUT)
@@ -74,22 +75,28 @@ libjwdpmi:
 	cp -u lib/jwdpmi_config.h lib/libjwdpmi/jwdpmi_config.h
 	$(MAKE) -C lib/libjwdpmi/
 
+lib/libjwdpmi/bin/libjwdpmi.a: libjwdpmi
+
 $(OUTDIR): 
 	mkdir -p $(OUTDIR)
 
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
-$(OUTDIR)/$(OUTPUT): $(OBJ) libjwdpmi | $(OUTDIR)
+$(OUTDIR)/$(OUTPUT): $(OBJ) lib/libjwdpmi/bin/libjwdpmi.a | $(OUTDIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LDFLAGS) $(LIBS) $(PIPECMD)
-	$(OBJDUMP) -M intel-mnemonic --insn-width=10 -C -w -d $@ > $(OUTDIR)/main.asm
 #	stubedit $@ dpmi=hdpmi32.exe
 
 $(OUTDIR)/$(OUTPUT_PACKED): $(OUTDIR)/$(OUTPUT) | $(OUTDIR)
 	cp $< $@
 	$(STRIP) -S $@
 	upx --best $@
-	-[ -d $(FDD) ] && cp -f $@ $(FDD)/$(OUTPUT_PACKED) # copy to floppy
+
+$(FDD)/$(OUTPUT_PACKED): $(OUTDIR)/$(OUTPUT_PACKED)
+	-[ -d $(dir $@) ] && rsync -v --progress $< $@ # copy to floppy
+
+$(OUTDIR)/$(OUTPUT_DUMP): $(OUTDIR)/$(OUTPUT) | $(OUTDIR)
+	$(OBJDUMP) -M intel-mnemonic --insn-width=10 -C -w -d $< > $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -o $@ -MF $(@:.o=.d) $(INCLUDE) -c $< $(PIPECMD)
