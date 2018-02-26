@@ -1,7 +1,7 @@
 program_exists = $(shell which $(1) > /dev/null && echo $(1))
 pick_tool = $(or $(call program_exists, $(join i586-pc-msdosdjgpp-,$(1))), $(1))
 
-CXX := $(or $(shell echo $$CC), $(call pick_tool, g++))
+CXX := $(or $(shell echo $$CXX), $(call pick_tool, g++))
 AR := $(or $(shell echo $$AR), $(call pick_tool, ar))
 OBJDUMP := $(or $(shell echo $$OBJDUMP), $(call pick_tool, objdump))
 STRIP := $(or $(shell echo $$STRIP), $(call pick_tool, strip))
@@ -12,6 +12,7 @@ CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
 CXXFLAGS += -Og -flto -flto-odr-type-merging
+#CXXFLAGS += -floop-nest-optimize -fgraphite-identity
 #CXXFLAGS += -march=pentium3 -ffast-math -mfpmath=both
 CXXFLAGS += -march=pentium -ffast-math
 CXXFLAGS += -std=gnu++17
@@ -38,6 +39,7 @@ CXXFLAGS += -D_DEBUG
 
 INCLUDE := -iquote include -Ilib/libjwdpmi/include
 LIBS := -Llib/libjwdpmi/bin -ljwdpmi
+LIB_OUTPUT := lib/libjwdpmi/bin/libjwdpmi.a
 
 OUTPUT := dpmitest-debug.exe
 OUTPUT_PACKED := dpmitest.exe
@@ -49,7 +51,6 @@ OBJDIR := obj
 SRC := $(wildcard $(SRCDIR)/*.cpp)
 OBJ := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 DEP := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.d)
-VPATH := .:$(SRCDIR)
 
 ifneq ($(findstring vs,$(MAKECMDGOALS)),)
     PIPECMD := 2>&1 | gcc2vs
@@ -59,7 +60,9 @@ endif
 
 .PHONY: all clean vs libjwdpmi
 
-all: $(OUTDIR)/$(OUTPUT) $(OUTDIR)/$(OUTPUT_PACKED) $(OUTDIR)/$(OUTPUT_DUMP) $(FDD)/$(OUTPUT_PACKED)
+FORCE: ;
+
+all: $(OUTDIR)/$(OUTPUT_PACKED) $(OUTDIR)/$(OUTPUT_DUMP) $(FDD)/$(OUTPUT_PACKED)
 
 clean:
 	rm -f $(OBJ) $(DEP) $(OUTDIR)/$(OUTPUT)
@@ -71,11 +74,9 @@ vs:
 	@rm _temp.*
 
 export CC CXX AR CXXFLAGS PIPECMD
-libjwdpmi:
+$(LIB_OUTPUT): FORCE
 	cp -u lib/jwdpmi_config.h lib/libjwdpmi/jwdpmi_config.h
 	$(MAKE) -C lib/libjwdpmi/
-
-lib/libjwdpmi/bin/libjwdpmi.a: libjwdpmi
 
 $(OUTDIR): 
 	mkdir -p $(OUTDIR)
@@ -83,7 +84,7 @@ $(OUTDIR):
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
-$(OUTDIR)/$(OUTPUT): $(OBJ) lib/libjwdpmi/bin/libjwdpmi.a | $(OUTDIR)
+$(OUTDIR)/$(OUTPUT): $(OBJ) $(LIB_OUTPUT) | $(OUTDIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LDFLAGS) $(LIBS) $(PIPECMD)
 #	stubedit $@ dpmi=hdpmi32.exe
 
@@ -93,7 +94,7 @@ $(OUTDIR)/$(OUTPUT_PACKED): $(OUTDIR)/$(OUTPUT) | $(OUTDIR)
 	upx --best $@
 
 $(FDD)/$(OUTPUT_PACKED): $(OUTDIR)/$(OUTPUT_PACKED)
-	-[ -d $(dir $@) ] && rsync -v --progress $< $@ # copy to floppy
+	-[ -d $(dir $@) ] && rsync -vu --progress $< $@ # copy to floppy
 
 $(OUTDIR)/$(OUTPUT_DUMP): $(OUTDIR)/$(OUTPUT) | $(OUTDIR)
 	$(OBJDUMP) -M intel-mnemonic --insn-width=10 -C -w -d $< > $@

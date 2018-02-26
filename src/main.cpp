@@ -307,7 +307,29 @@ int jwdpmi_main(std::deque<std::string_view>)
         } while (str != "quit");
     }
     return 0; */
+/*
+    dpmi::breakpoint();
 
+    {
+        dpmi::trap_mask no_trace { };
+        std::cout << "not tracing here...\n";
+        dpmi::breakpoint();
+    }
+    std::cout << "trace enabled again!\n";
+    try
+    {
+        dpmi::breakpoint();
+        {
+            dpmi::trap_mask no_trace { };
+            std::cout << "testing...\n";
+            //std::cout << 1 / 0;
+            std::cout << "nothing happened?\n";
+        }
+    }
+    catch (...) { }
+
+    std::cout << "trace enabled again!\n";
+  */
     dpmi::breakpoint();
 
     while(true)
@@ -328,28 +350,6 @@ int jwdpmi_main(std::deque<std::string_view>)
     std::raise(SIGHUP);
 
     //vbe_test();
-    
-    
-    /*
-    {
-        dpmi::trap_mask no_trace { };
-        std::cout << "not tracing here...\n";
-        //dpmi::breakpoint();
-    }
-    std::cout << "trace enabled again!\n";
-    try
-    {
-        dpmi::breakpoint();
-        {
-            dpmi::trap_mask no_trace { };
-            std::cout << "testing...\n";
-            //std::cout << 1 / 0;
-            std::cout << "nothing happened?\n";
-        }
-    }
-    catch (...) { }
-
-    std::cout << "trace enabled again!\n";*/
 
     /*
     auto test_thread = []()
