@@ -21,6 +21,7 @@
 #include <jw/video/pixel.h>
 #include <jw/video/vbe.h>
 #include <jw/math.h>
+#include <jw/io/gameport.h>
 #include <cstdio>
 #include <cstddef>
 #include <chrono>
@@ -167,6 +168,45 @@ void game()
     matrix_container<clock::time_point> time_points { r.size() };
 
     io::keyboard keyb { std::make_shared<io::ps2_interface>() };
+
+    io::gameport::config gameport_cfg { };
+    gameport_cfg.enable.x1 = false;
+    gameport_cfg.enable.y1 = false;
+
+    std::cout << "calibrate joystick, press fire when done.\n";
+    {
+        io::gameport joystick { gameport_cfg };
+        std::swap(gameport_cfg.calibration.x0_max, gameport_cfg.calibration.x0_min);
+        std::swap(gameport_cfg.calibration.y0_max, gameport_cfg.calibration.y0_min);
+        while (true)
+        {
+            auto [x0, y0, x1, y1] = joystick.get_raw();
+            gameport_cfg.calibration.x0_min = std::min(gameport_cfg.calibration.x0_min, x0);
+            gameport_cfg.calibration.y0_min = std::min(gameport_cfg.calibration.y0_min, y0);
+            gameport_cfg.calibration.x0_max = std::max(gameport_cfg.calibration.x0_max, x0);
+            gameport_cfg.calibration.y0_max = std::max(gameport_cfg.calibration.y0_max, y0);
+
+            auto [a0, b0, a1, b1] = joystick.buttons();
+            if (a0 or b0) break;
+        }
+    }
+
+    gameport_cfg.strategy = io::gameport::poll_strategy::thread;
+    io::gameport joystick { gameport_cfg };
+
+    std::cout <<
+        " x0_min=" << gameport_cfg.calibration.x0_min <<
+        " y0_min=" << gameport_cfg.calibration.y0_min <<
+        " x0_max=" << gameport_cfg.calibration.x0_max <<
+        " y0_max=" << gameport_cfg.calibration.y0_max << '\n';
+
+    while (true)
+    {
+        joystick.get_raw();
+        auto b = joystick.buttons();
+        if (not (b.a0 or b.b0)) break;
+    }
+
     bool collision = false;
     bool friction = true;
     vector2f delta { 0,0 };
@@ -200,7 +240,8 @@ void game()
         last_now = now;
 
         using namespace io;
-        vector2f new_delta { 0,0 };
+        auto joy = joystick.get();
+        vector2f new_delta { joy.x0, joy.y0 };
         keyb.update();
         if (keyb[key::up])    new_delta += vector2f::up();
         if (keyb[key::down])  new_delta += vector2f::down();
@@ -232,7 +273,7 @@ void game()
         if (friction) delta -= delta * dt * 2;
 
         std::stringstream fps { };
-        fps << "FPS: " << 1 / dt;
+        fps << "FPS: " << 1 / dt << " joy=" << vector2f { joy.x0, joy.y0 } << " delta=" << delta;
         auto* i { m.data() };
         for (auto c : fps.str()) *i++ = c;
         for (; i < m.data() + m.width();) *i++ = ' ';
@@ -331,6 +372,9 @@ int jwdpmi_main(std::deque<std::string_view>)
     std::cout << "trace enabled again!\n";
   */
     dpmi::breakpoint();
+
+    game();
+    return 0;
 
     while(true)
     {
