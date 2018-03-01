@@ -152,9 +152,13 @@ void vbe_test()
 
 void game()
 {
+    using namespace std::chrono_literals;
     chrono::setup::setup_pit(true, 0x1000);
     chrono::setup::setup_tsc(10000);
     using clock = std::chrono::high_resolution_clock;
+
+    std::cout << "synchronizing timer...\n";
+    thread::yield_while_for([] { return true; }, 2s);
 
     dpmi::mapped_dos_memory<video::text_char> screen_ptr { 80 * 50, dpmi::far_ptr16 { 0xB800, 0 } };
     matrix<video::text_char> screen { 80, 50, screen_ptr.get_ptr() };
@@ -169,36 +173,36 @@ void game()
 
     io::keyboard keyb { std::make_shared<io::ps2_interface>() };
 
-    io::gameport::config gameport_cfg { };
+    io::gameport<>::config gameport_cfg { };
     gameport_cfg.enable.x1 = false;
     gameport_cfg.enable.y1 = false;
 
     std::cout << "calibrate joystick, press fire when done.\n";
     {
-        io::gameport joystick { gameport_cfg };
+        io::gameport<> joystick { gameport_cfg };
         std::swap(gameport_cfg.calibration.x0_max, gameport_cfg.calibration.x0_min);
         std::swap(gameport_cfg.calibration.y0_max, gameport_cfg.calibration.y0_min);
         while (true)
         {
-            auto [x0, y0, x1, y1] = joystick.get_raw();
-            gameport_cfg.calibration.x0_min = std::min(gameport_cfg.calibration.x0_min, x0);
-            gameport_cfg.calibration.y0_min = std::min(gameport_cfg.calibration.y0_min, y0);
-            gameport_cfg.calibration.x0_max = std::max(gameport_cfg.calibration.x0_max, x0);
-            gameport_cfg.calibration.y0_max = std::max(gameport_cfg.calibration.y0_max, y0);
+            auto raw = joystick.get_raw();
+            gameport_cfg.calibration.x0_min = std::min(gameport_cfg.calibration.x0_min, raw.x0);
+            gameport_cfg.calibration.y0_min = std::min(gameport_cfg.calibration.y0_min, raw.y0);
+            gameport_cfg.calibration.x0_max = std::max(gameport_cfg.calibration.x0_max, raw.x0);
+            gameport_cfg.calibration.y0_max = std::max(gameport_cfg.calibration.y0_max, raw.y0);
 
             auto [a0, b0, a1, b1] = joystick.buttons();
             if (a0 or b0) break;
         }
     }
 
-    gameport_cfg.strategy = io::gameport::poll_strategy::thread;
-    io::gameport joystick { gameport_cfg };
+    gameport_cfg.strategy = io::gameport<>::poll_strategy::thread;
+    io::gameport<> joystick { gameport_cfg };
 
     std::cout <<
-        " x0_min=" << gameport_cfg.calibration.x0_min <<
-        " y0_min=" << gameport_cfg.calibration.y0_min <<
-        " x0_max=" << gameport_cfg.calibration.x0_max <<
-        " y0_max=" << gameport_cfg.calibration.y0_max << '\n';
+        " x0_min=" << gameport_cfg.calibration.x0_min.count() <<
+        " y0_min=" << gameport_cfg.calibration.y0_min.count() <<
+        " x0_max=" << gameport_cfg.calibration.x0_max.count() <<
+        " y0_max=" << gameport_cfg.calibration.y0_max.count() << '\n';
 
     while (true)
     {
