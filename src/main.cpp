@@ -7,14 +7,14 @@
 #include <jw/io/ioport.h>
 #include <jw/io/rs232.h>
 #include <jw/dpmi/cpu_exception.h>
-#include <jw/dpmi/debug.h>
+#include <jw/debug/debug.h>
 #include <jw/dpmi/realmode.h>
 #include <jw/thread/task.h>
 #include <jw/thread/coroutine.h>
 #include <jw/io/keyboard.h>
 #include <jw/io/ps2_interface.h>
 #include <jw/alloc.h>
-#include <jw/vector2.h>
+#include <jw/vector.h>
 #include <jw/matrix.h>
 #include <jw/io/mpu401.h>
 #include <jw/io/pci.h>
@@ -158,7 +158,7 @@ void game()
     using clock = std::chrono::high_resolution_clock;
 
     std::cout << "synchronizing timer...\n";
-    thread::yield_while_for([] { return true; }, 2s);
+    thread::yield_for(2s);
 
     dpmi::mapped_dos_memory<video::text_char> screen_ptr { 80 * 50, dpmi::far_ptr16 { 0xB800, 0 } };
     matrix<video::text_char> screen { 80, 50, screen_ptr.get_ptr() };
@@ -191,11 +191,11 @@ void game()
             gameport_cfg.calibration.y0_max = std::max(gameport_cfg.calibration.y0_max, raw.y0);
 
             auto [a0, b0, a1, b1] = joystick.buttons();
-            if (a0 or b0) break;
+            if (a0 or b0 or a1 or b1 or keyb[io::key::enter]) break;
         }
     }
 
-    gameport_cfg.strategy = io::gameport<>::poll_strategy::thread;
+    gameport_cfg.strategy = io::gameport<>::poll_strategy::busy_loop;
     io::gameport<> joystick { gameport_cfg };
 
     std::cout <<
@@ -245,7 +245,7 @@ void game()
 
         using namespace io;
         auto joy = joystick.get();
-        vector2f new_delta { joy.x0, joy.y0 };
+        vector2f new_delta { joy.x, joy.y };
         keyb.update();
         if (keyb[key::up])    new_delta += vector2f::up();
         if (keyb[key::down])  new_delta += vector2f::down();
@@ -277,7 +277,7 @@ void game()
         if (friction) delta -= delta * dt * 2;
 
         std::stringstream fps { };
-        fps << "FPS: " << 1 / dt << " joy=" << vector2f { joy.x0, joy.y0 } << " delta=" << delta;
+        fps << "FPS: " << 1 / dt << " joy=" << vector2f { joy.x, joy.y } << " delta=" << delta;
         auto* i { m.data() };
         for (auto c : fps.str()) *i++ = c;
         for (; i < m.data() + m.width();) *i++ = ' ';
@@ -375,9 +375,10 @@ int jwdpmi_main(std::deque<std::string_view>)
 
     std::cout << "trace enabled again!\n";
   */
-    dpmi::breakpoint();
+    debug::breakpoint();
 
     game();
+    vbe_test();
     return 0;
 
     while(true)

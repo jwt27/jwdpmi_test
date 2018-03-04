@@ -11,10 +11,11 @@ FDD := $(or $(FDD), /a)
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
-CXXFLAGS += -Og -flto -flto-odr-type-merging
-#CXXFLAGS += -floop-nest-optimize -fgraphite-identity
-#CXXFLAGS += -march=pentium3 -ffast-math -mfpmath=both
-CXXFLAGS += -march=pentium -ffast-math
+#CXXFLAGS += -O3 -flto -flto-odr-type-merging -ffast-math
+CXXFLAGS += -Og -ggdb -flto -flto-odr-type-merging -ffast-math
+CXXFLAGS += -floop-nest-optimize -fgraphite-identity
+CXXFLAGS += -march=pentium3 -mfpmath=both
+#CXXFLAGS += -march=pentium
 CXXFLAGS += -std=gnu++17
 CXXFLAGS += -Wall -Wextra
 # CXXFLAGS += -Wdisabled-optimization -Winline 
@@ -25,8 +26,7 @@ CXXFLAGS += -Wsuggest-override
 # CXXFLAGS += -Woverloaded-virtual
 # CXXFLAGS += -Wpadded
 # CXXFLAGS += -Wpacked
-CXXFLAGS += -fno-omit-frame-pointer
-CXXFLAGS += -ggdb
+#CXXFLAGS += -fno-omit-frame-pointer
 CXXFLAGS += -fnon-call-exceptions -fasynchronous-unwind-tables
 CXXFLAGS += -mcld
 CXXFLAGS += -mpreferred-stack-boundary=4
