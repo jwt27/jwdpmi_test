@@ -174,8 +174,8 @@ void game()
     io::keyboard keyb { std::make_shared<io::ps2_interface>() };
 
     io::gameport::config gameport_cfg { };
-    //gameport_cfg.enable.z = false;
-    //gameport_cfg.enable.w = false;
+    gameport_cfg.enable.z = false;
+    gameport_cfg.enable.w = false;
 
     std::cout << "calibrate joystick, press fire when done." << std::endl;
     {
