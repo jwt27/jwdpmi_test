@@ -173,43 +173,38 @@ void game()
 
     io::keyboard keyb { std::make_shared<io::ps2_interface>() };
 
-    io::gameport<>::config gameport_cfg { };
-    gameport_cfg.enable.x1 = false;
-    gameport_cfg.enable.y1 = false;
+    io::gameport::config gameport_cfg { };
+    //gameport_cfg.enable.z = false;
+    //gameport_cfg.enable.w = false;
 
-    std::cout << "calibrate joystick, press fire when done.\n";
+    std::cout << "calibrate joystick, press fire when done." << std::endl;
     {
-        io::gameport<> joystick { gameport_cfg };
-        std::swap(gameport_cfg.calibration.x0_max, gameport_cfg.calibration.x0_min);
-        std::swap(gameport_cfg.calibration.y0_max, gameport_cfg.calibration.y0_min);
-        while (true)
+        io::gameport joystick { gameport_cfg };
+        std::swap(gameport_cfg.calibration.max, gameport_cfg.calibration.min);
+        do
         {
             auto raw = joystick.get_raw();
-            gameport_cfg.calibration.x0_min = std::min(gameport_cfg.calibration.x0_min, raw.x0);
-            gameport_cfg.calibration.y0_min = std::min(gameport_cfg.calibration.y0_min, raw.y0);
-            gameport_cfg.calibration.x0_max = std::max(gameport_cfg.calibration.x0_max, raw.x0);
-            gameport_cfg.calibration.y0_max = std::max(gameport_cfg.calibration.y0_max, raw.y0);
-
-            auto [a0, b0, a1, b1] = joystick.buttons();
-            if (a0 or b0 or a1 or b1 or keyb[io::key::enter]) break;
-        }
+            for (auto i = 0; i < 4; ++i)
+            {
+                gameport_cfg.calibration.min[i] = std::min(gameport_cfg.calibration.min[i], raw[i]);
+                gameport_cfg.calibration.max[i] = std::max(gameport_cfg.calibration.max[i], raw[i]);
+            }
+        } while (joystick.buttons().none());
     }
 
-    gameport_cfg.strategy = io::gameport<>::poll_strategy::busy_loop;
-    io::gameport<> joystick { gameport_cfg };
+    gameport_cfg.strategy = io::gameport::poll_strategy::busy_loop;
+    io::gameport joystick { gameport_cfg };
 
     std::cout <<
-        " x0_min=" << gameport_cfg.calibration.x0_min.count() <<
-        " y0_min=" << gameport_cfg.calibration.y0_min.count() <<
-        " x0_max=" << gameport_cfg.calibration.x0_max.count() <<
-        " y0_max=" << gameport_cfg.calibration.y0_max.count() << '\n';
+        " x0_min=" << gameport_cfg.calibration.min[0].count() <<
+        " y0_min=" << gameport_cfg.calibration.min[1].count() <<
+        " x0_max=" << gameport_cfg.calibration.max[0].count() <<
+        " y0_max=" << gameport_cfg.calibration.max[1].count() << '\n';
 
-    while (true)
+    do
     {
         joystick.get_raw();
-        auto b = joystick.buttons();
-        if (not (b.a0 or b.b0)) break;
-    }
+    } while (joystick.buttons().any());
 
     bool collision = false;
     bool friction = true;
@@ -277,7 +272,7 @@ void game()
         if (friction) delta -= delta * dt * 2;
 
         std::stringstream fps { };
-        fps << "FPS: " << 1 / dt << " joy=" << vector2f { joy.x, joy.y } << " delta=" << delta;
+        fps << "FPS: " << 1 / dt << "buttons=" << joystick.buttons() << " joy=" << joy << " delta=" << delta;
         auto* i { m.data() };
         for (auto c : fps.str()) *i++ = c;
         for (; i < m.data() + m.width();) *i++ = ' ';
@@ -321,8 +316,8 @@ void enumerate_ports()
     while (true)
     {
         try { ports.emplace_back(); }
-        catch (io::pci_device::device_not_found) { break; }
-        catch (io::pci_device::unsupported_function) { std::cerr << "no PCI\n"; break; }
+        catch (const io::pci_device::device_not_found&) { break; }
+        catch (const io::pci_device::unsupported_function&) { std::cerr << "no PCI\n"; break; }
     }
     for (auto&& i : ports) i.print_addr();
 }

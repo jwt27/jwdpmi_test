@@ -4,6 +4,12 @@
 
 namespace jw
 {
+    namespace chrono
+    {
+        struct pit;
+        struct tsc;
+        struct rtc;
+    }
     namespace config
     {
         // Additional startup flags for the djgpp runtime library.
@@ -42,5 +48,14 @@ namespace jw
 
         // Enable this to work around buggy keyboard code in dosbox.
         constexpr bool dosbox = false;
+
+        // Clock used for gameport timing.
+        using gameport_clock = jw::chrono::tsc;
+
+        // Clock used for midi timestamps.
+        using midi_clock = jw::chrono::tsc;
+
+        // Default clock used by thread::yield_for() and thread::yield_while_for().
+        using thread_clock = jw::chrono::pit;
     }
 }
