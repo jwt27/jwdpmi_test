@@ -97,7 +97,7 @@ $(OUTDIR)/$(OUTPUT_PACKED): $(OUTDIR)/$(OUTPUT) | $(OUTDIR)
 	upx --best $@
 
 $(FDD)/$(OUTPUT_PACKED): $(OUTDIR)/$(OUTPUT_PACKED)
-	-[ -d $(dir $@) ] && rsync -vu --progress $< $@ # copy to floppy
+	-[ -d $(dir $@) ] && rsync -vu --inplace --progress $< $@ # copy to floppy
 
 $(OUTDIR)/$(OUTPUT_DUMP): $(OUTDIR)/$(OUTPUT) | $(OUTDIR)
 	$(OBJDUMP) -M intel-mnemonic --insn-width=10 -C -w -d $< > $@
