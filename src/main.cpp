@@ -33,8 +33,7 @@ using namespace jw;
 
 void vbe_test()
 {
-
-    //auto v = new video::vbe2 { };
+    using namespace std::literals;
     auto v = video::get_vbe_interface();
     auto info = v->get_vbe_info();
 
@@ -94,7 +93,8 @@ void vbe_test()
     //float color = 0;
     constexpr auto fpi = static_cast<float>(M_PI);
 
-    while (true)
+    auto start = clock::now();
+    while (clock::now() < start + 10s)
     {
         std::swap(r, r2);
 
@@ -155,7 +155,7 @@ void game()
     using namespace std::chrono_literals;
     chrono::setup::setup_pit(true, 0x1000);
     chrono::setup::setup_tsc(10000);
-    using clock = std::chrono::high_resolution_clock;
+    using clock = jw::chrono::tsc;
 
     std::cout << "synchronizing timer...\n";
     thread::yield_for(2s);
@@ -272,7 +272,7 @@ void game()
         if (friction) delta -= delta * dt * 2;
 
         std::stringstream fps { };
-        fps << "FPS: " << 1 / dt << "buttons=" << joystick.buttons() << " joy=" << joy << " delta=" << delta;
+        fps << "FPS: " << 1 / dt << " buttons=" << joystick.buttons() << " joy=" << joy << " delta=" << delta;
         auto* i { m.data() };
         for (auto c : fps.str()) *i++ = c;
         for (; i < m.data() + m.width();) *i++ = ' ';
