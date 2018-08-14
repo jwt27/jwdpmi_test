@@ -11,8 +11,9 @@ FDD := $(or $(FDD), /a)
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
-CXXFLAGS += -O3 -flto -flto-odr-type-merging -ffast-math
-#CXXFLAGS += -Og -ggdb -flto -flto-odr-type-merging -ffast-math
+#CXXFLAGS += -O3 -ffast-math
+CXXFLAGS += -Og -ggdb3 -ffast-math
+#CXXFLAGS += -flto -flto-odr-type-merging
 CXXFLAGS += -floop-nest-optimize -fgraphite-identity
 CXXFLAGS += -march=pentium3 -mfpmath=both
 #CXXFLAGS += -march=pentium
@@ -39,7 +40,6 @@ CXXFLAGS += -D_DEBUG
 
 INCLUDE := -iquote include -Ilib/libjwdpmi/include
 LIBS := -Llib/libjwdpmi/bin -ljwdpmi
-LIB_OUTPUT := lib/libjwdpmi/bin/libjwdpmi.a
 
 OUTPUT := dpmitest-debug.exe
 OUTPUT_PACKED := dpmitest.exe
@@ -51,6 +51,7 @@ OBJDIR := obj
 SRC := $(wildcard $(SRCDIR)/*.cpp)
 OBJ := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 DEP := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.d)
+ASM := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.asm)
 PREPROCESSED := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.ii)
 
 ifneq ($(findstring vs,$(MAKECMDGOALS)),)
@@ -61,11 +62,13 @@ endif
 
 .PHONY: all clean vs libjwdpmi
 
-FORCE: ;
-
 all: $(OUTDIR)/$(OUTPUT_PACKED) $(OUTDIR)/$(OUTPUT_DUMP) $(FDD)/$(OUTPUT_PACKED)
 
 preprocessed: $(PREPROCESSED)
+	$(MAKE) preprocessed -C lib/libjwdpmi/
+
+asm: $(ASM)
+	$(MAKE) asm -C lib/libjwdpmi/
 
 clean:
 	rm -f $(OBJ) $(DEP) $(OUTDIR)/$(OUTPUT)
@@ -77,7 +80,7 @@ vs:
 	@rm _temp.*
 
 export CC CXX AR CXXFLAGS PIPECMD
-$(LIB_OUTPUT): FORCE
+libjwdpmi:
 	cp -u lib/jwdpmi_config.h lib/libjwdpmi/jwdpmi_config.h
 	$(MAKE) -C lib/libjwdpmi/
 
@@ -87,7 +90,7 @@ $(OUTDIR):
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
-$(OUTDIR)/$(OUTPUT): $(OBJ) $(LIB_OUTPUT) | $(OUTDIR)
+$(OUTDIR)/$(OUTPUT): $(OBJ) libjwdpmi | $(OUTDIR)
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJ) $(LDFLAGS) $(LIBS) $(PIPECMD)
 #	stubedit $@ dpmi=hdpmi32.exe
 
@@ -104,6 +107,9 @@ $(OUTDIR)/$(OUTPUT_DUMP): $(OUTDIR)/$(OUTPUT) | $(OUTDIR)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -o $@ -MF $(@:.o=.d) $(INCLUDE) -c $< $(PIPECMD)
+
+$(OBJDIR)/%.asm: $(SRCDIR)/%.cpp | $(OBJDIR)
+	$(CXX) $(CXXFLAGS) -S -o $@ $(INCLUDE) -c $< $(PIPECMD)
 
 $(OBJDIR)/%.ii: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -E -o $@ $(INCLUDE) -c $<
