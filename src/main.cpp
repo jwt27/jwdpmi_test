@@ -22,6 +22,7 @@
 #include <jw/video/vbe.h>
 #include <jw/math.h>
 #include <jw/io/gameport.h>
+#include <jw/video/ansi.h>
 #include <cstdio>
 #include <cstddef>
 #include <chrono>
@@ -86,7 +87,7 @@ void vbe_test()
 
     chrono::setup::setup_pit(true, 0x1000);
     chrono::setup::setup_tsc(10000);
-    using clock = std::chrono::high_resolution_clock;
+    using clock = jw::chrono::pit;
 
     auto last_now = clock::now();
     float t = 0;
@@ -172,39 +173,61 @@ void game()
     matrix_container<clock::time_point> time_points { r.size() };
 
     io::keyboard keyb { std::make_shared<io::ps2_interface>() };
+    std::optional<io::gameport> joystick;
 
-    io::gameport::config gameport_cfg { };
-    gameport_cfg.enable.z = false;
-    gameport_cfg.enable.w = false;
+    std::cout << "Calibrate joystick, press fire when done." << std::endl;
+    std::cout << "Press DEL to restart calibration, ESC to disable joystick." << std::endl;
 
-    std::cout << "calibrate joystick, press fire when done." << std::endl;
+    struct no_joystick_please { };
+    try
     {
-        io::gameport joystick { gameport_cfg };
-        std::swap(gameport_cfg.calibration.max, gameport_cfg.calibration.min);
-        do
+    retry_calibration:
+        io::gameport::config gameport_cfg { };
+        gameport_cfg.enable.z = false;
+        gameport_cfg.enable.w = false;
+
         {
-            auto raw = joystick.get_raw();
-            for (auto i = 0; i < 4; ++i)
+            io::gameport joystick { gameport_cfg };
+            std::swap(gameport_cfg.calibration.max, gameport_cfg.calibration.min);
+            vector2i pos { 40,25 };
+            auto saved = screen.at(pos);
+            do
             {
-                gameport_cfg.calibration.min[i] = std::min(gameport_cfg.calibration.min[i], raw[i]);
-                gameport_cfg.calibration.max[i] = std::max(gameport_cfg.calibration.max[i], raw[i]);
-            }
-        } while (joystick.buttons().none());
+                auto raw = joystick.get_raw();
+                vector4f value;
+                for (auto i = 0; i < 4; ++i)
+                {
+                    auto& c = gameport_cfg.calibration;
+                    c.min[i] = std::min(c.min[i], raw[i]);
+                    c.max[i] = std::max(c.max[i], raw[i]);
+                    value[i] = raw[i].count();
+                    value[i] /= c.max[i].count() - c.min[i].count();
+                }
+                screen.at(pos) = saved;
+                pos = { value[0] * 79, value[1] * 49 };
+                pos.clamp({ 0,0 }, { 79,49 });
+                saved = screen.at(pos);
+                screen.at(pos) = 'X';
+                keyb.update();
+                if (keyb[io::key::del]) goto retry_calibration;
+                if (keyb[io::key::esc]) throw no_joystick_please { };
+            } while (joystick.buttons().none());
+        }
+
+        gameport_cfg.strategy = io::gameport::poll_strategy::busy_loop;
+        joystick.emplace(gameport_cfg);
+
+        std::cout <<
+            " x0_min=" << gameport_cfg.calibration.min[0].count() <<
+            " y0_min=" << gameport_cfg.calibration.min[1].count() <<
+            " x0_max=" << gameport_cfg.calibration.max[0].count() <<
+            " y0_max=" << gameport_cfg.calibration.max[1].count() << '\n';
+
+        do { joystick->get_raw(); } while (joystick->buttons().any());
     }
+    catch (const no_joystick_please&) { }
 
-    gameport_cfg.strategy = io::gameport::poll_strategy::busy_loop;
-    io::gameport joystick { gameport_cfg };
-
-    std::cout <<
-        " x0_min=" << gameport_cfg.calibration.min[0].count() <<
-        " y0_min=" << gameport_cfg.calibration.min[1].count() <<
-        " x0_max=" << gameport_cfg.calibration.max[0].count() <<
-        " y0_max=" << gameport_cfg.calibration.max[1].count() << '\n';
-
-    do
-    {
-        joystick.get_raw();
-    } while (joystick.buttons().any());
+    do { keyb.update(); } while (keyb[io::key::esc]);
 
     bool collision = false;
     bool friction = true;
@@ -239,7 +262,7 @@ void game()
         last_now = now;
 
         using namespace io;
-        auto joy = joystick.get();
+        auto joy = joystick ? joystick->get() : vector4f { };
         vector2f new_delta { joy.x, joy.y };
         keyb.update();
         if (keyb[key::up])    new_delta += vector2f::up();
@@ -271,13 +294,14 @@ void game()
         last_player = player;
         if (friction) delta -= delta * dt * 2;
 
-        std::stringstream fps { };
-        fps << "FPS: " << 1 / dt << " buttons=" << joystick.buttons() << " joy=" << joy << " delta=" << delta;
-        auto* i { m.data() };
-        for (auto c : fps.str()) *i++ = c;
-        for (; i < m.data() + m.width();) *i++ = ' ';
+        screen.range_abs({ 0,2 }, {80,50}).assign(m.range_abs({ 0,2 }, { 80,50 }));
 
-        screen.assign(m);
+        using namespace jw::video::ansi;
+        std::cout << set_cursor({ 0, 1 }) + clear_line();
+        std::cout << set_cursor({ 0, 0 }) + clear_line();
+        std::cout << "FPS: " << 1 / dt << set_cursor({ 30, 0 }) << "delta=" << delta << "\n";
+        if (joystick) std::cout << "buttons=" << joystick->buttons() << set_cursor({ 30, 1 }) << "joy=" << joy << std::flush;
+
         thread::yield();
     }
 }
@@ -322,58 +346,32 @@ void enumerate_ports()
     for (auto&& i : ports) i.print_addr();
 }
 
+
+void test_ansi()
+{
+    using namespace jw::video::ansi;
+
+    std::cout << bold(true) + fg(red) + bg(black) << "test\n";
+    std::cout << bold(false) + fg(yellow) + bg(blue) << "test\n";
+    std::cout << underline(true) + fg(white) + bg(blue) << "test\n";
+
+    std::cout << set_cursor({ 10, 10 }) + move_cursor({ -2, 5 }) << "test\n";
+}
+
 int jwdpmi_main(std::deque<std::string_view>)
 {
+    using namespace jw::video::ansi;
+
+    std::cout << set_80x50_mode();
+
     std::cout << "Hello, World!" << std::endl;
-
-    /*
-    enumerate_ports();
-
-    {
-        io::rs232_config cfg { };
-        cfg.set_com_port(io::com1);
-        //cfg.flow_control = io::rs232_config::rts_cts;
-        io::rs232_stream s { cfg };
-
-        s << "hello world!\r\n" << std::flush;
-
-        std::string str;
-        do
-        {
-            std::getline(std::cin, str);
-            s << str << std::endl;
-            std::getline(s, str);
-            std::cout << str << std::endl;
-        } while (str != "quit");
-    }
-    return 0; */
-/*
-    dpmi::breakpoint();
-
-    {
-        dpmi::trap_mask no_trace { };
-        std::cout << "not tracing here...\n";
-        dpmi::breakpoint();
-    }
-    std::cout << "trace enabled again!\n";
-    try
-    {
-        dpmi::breakpoint();
-        {
-            dpmi::trap_mask no_trace { };
-            std::cout << "testing...\n";
-            //std::cout << 1 / 0;
-            std::cout << "nothing happened?\n";
-        }
-    }
-    catch (...) { }
-
-    std::cout << "trace enabled again!\n";
-  */
-    debug::breakpoint();
+    if (not install_check()) std::cout << "No ";
+    std::cout << "ANSI driver detected.\n";
 
     game();
-    vbe_test();
+    //vbe_test();
+    std::cout << reset() + set_80x50_mode();
+
     return 0;
 
     while(true)

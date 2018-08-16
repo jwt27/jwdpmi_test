@@ -11,8 +11,8 @@ FDD := $(or $(FDD), /a)
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
-#CXXFLAGS += -O3 -ffast-math
-CXXFLAGS += -Og -ggdb3 -ffast-math
+CXXFLAGS += -O3 -ffast-math
+#CXXFLAGS += -Og -ggdb3 -ffast-math
 #CXXFLAGS += -flto -flto-odr-type-merging
 CXXFLAGS += -floop-nest-optimize -fgraphite-identity
 CXXFLAGS += -march=pentium3 -mfpmath=both
@@ -71,7 +71,7 @@ asm: $(ASM)
 	$(MAKE) asm -C lib/libjwdpmi/
 
 clean:
-	rm -f $(OBJ) $(DEP) $(OUTDIR)/$(OUTPUT)
+	rm -f $(OBJ) $(DEP) $(ASM) $(PREPROCESSED) $(OUTDIR)/$(OUTPUT) $(OUTDIR)/$(OUTPUT_PACKED) $(OUTDIR)/$(OUTPUT_DUMP)
 	$(MAKE) clean -C lib/libjwdpmi/
 
 vs:
@@ -98,6 +98,7 @@ $(OUTDIR)/$(OUTPUT_PACKED): $(OUTDIR)/$(OUTPUT) | $(OUTDIR)
 	cp $< $@
 	$(STRIP) -S $@
 	upx --best $@
+	touch $@
 
 $(FDD)/$(OUTPUT_PACKED): $(OUTDIR)/$(OUTPUT_PACKED)
 	-[ -d $(dir $@) ] && rsync -vu --inplace --progress $< $@ # copy to floppy
