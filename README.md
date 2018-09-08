@@ -5,11 +5,11 @@ This repository contains several applications to test and demonstrate the use of
 ### `master`
 A simple "Hello World" application.
 
-###`game`
+### `game`
 A basic video game where you control a character using the joystick or keyboard.
 Demonstrates the use of timers, vectors, remapped DOS memory, keyboard and joystick, etc.
 
-###`vbe`
+### `vbe`
 Displays an animation with real-time alpha-blending, using both integer (MMX) and floating-point (SSE) math.
 Demonstrates the VBE graphics interface and pixel layout structures.
 
