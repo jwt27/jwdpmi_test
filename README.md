@@ -1,5 +1,17 @@
 # jwdpmi_test
-This is a test application I use to develop [libjwdpmi](https://github.com/jwt27/libjwdpmi). It also serves as a project template to start developing and debugging DPMI programs in Visual Studio.
+This repository contains several applications to test and demonstrate the use of [libjwdpmi](https://github.com/jwt27/libjwdpmi). It also serves as a project template to start developing and debugging DPMI programs in Visual Studio.
+
+## Branches:
+### `master`
+A simple "Hello World" application.
+
+###`game`
+A basic video game where you control a character using the joystick or keyboard.
+Demonstrates the use of timers, vectors, remapped DOS memory, keyboard and joystick, etc.
+
+###`vbe`
+Displays an animation with real-time alpha-blending, using both integer (MMX) and floating-point (SSE) math.
+Demonstrates the VBE graphics interface and pixel layout structures.
 
 ## To build:
 * Build and install gcc with [`--target=i586-pc-msdosdjgpp-g++`](https://github.com/jwt27/build-gcc).
