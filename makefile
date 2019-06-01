@@ -6,8 +6,6 @@ AR := $(or $(shell echo $$AR), $(call pick_tool,ar))
 OBJDUMP := $(or $(shell echo $$OBJDUMP), $(call pick_tool,objdump))
 STRIP := $(or $(shell echo $$STRIP), $(call pick_tool,strip))
 
-FDD := $(or $(FDD), /a)
-
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
@@ -64,16 +62,12 @@ else
     PIPECMD :=
 endif
 
-make-target = $(1): bin/$(strip $1).exe bin/$(1)-debug.exe bin/$(1).asm
+make-target = $(1): bin/$(1).exe bin/$(1)-debug.exe bin/$(1).asm $$(FDD)/$(1).exe
 $(foreach target, $(TARGETS), $(eval $(call make-target,$(target))))
 
 .PHONY: all clean vs libjwdpmi asm preprocessed $(TARGETS)
 
-test:
-	echo $(EXE)
-	echo $(call make-target,test)
-
-all: $(EXE) $(EXE_DEBUG) $(ASMDUMP)
+all: $(TARGETS)
 
 preprocessed: $(PREPROCESSED)
 	$(MAKE) preprocessed -C lib/libjwdpmi/
@@ -120,7 +114,7 @@ bin/%.exe: bin/%-debug.exe | bin
 	touch $@
 
 $(FDD)/%.exe: bin/%.exe
-	-[ -d $(dir $@) ] && rsync -vu --inplace --progress $< $@ # copy to floppy
+	-[ ! -z $(FDD) ] && [ -d $(FDD) ] && rsync -vu --inplace --progress $< $@ # copy to floppy
 
 bin/%.asm: bin/%.exe | bin
 	$(OBJDUMP) -M intel-mnemonic --insn-width=10 -C -w -d $< > $@

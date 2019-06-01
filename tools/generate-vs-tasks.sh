@@ -10,9 +10,8 @@ cat << STOP > tasks.vs.json
       "taskLabel": "generate-tasks",
       "contextType": "build",
       "workingDirectory": "\${workspaceRoot}",
-      "command": "\${workspaceRoot}/make_vs.bat",
+      "command": "\${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "\${workspaceRoot}",
         "-B"
       ],
       "output": "tasks.vs.json"
@@ -29,11 +28,10 @@ for file in $(ls src/*.cpp); do
       "taskLabel": "build-${f}",
       "contextType": "build",
       "workingDirectory": "\${workspaceRoot}",
-      "command": "\${workspaceRoot}/make_vs.bat",
+      "command": "\${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "\${workspaceRoot}",
         "${f}",
-        "/a/${f}.exe"
+        "FDD=/a"
       ],
       "output": "bin/${f}.exe"
     },
@@ -43,12 +41,11 @@ for file in $(ls src/*.cpp); do
       "taskLabel": "rebuild-${f}",
       "contextType": "rebuild",
       "workingDirectory": "\${workspaceRoot}",
-      "command": "\${workspaceRoot}/make_vs.bat",
+      "command": "\${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "\${workspaceRoot}",
         "-B",
         "${f}",
-        "/a/${f}.exe"
+        "FDD=/a"
       ],
       "output": "bin/${f}.exe"
     },
@@ -62,9 +59,8 @@ cat << STOP >> tasks.vs.json
       "taskLabel": "build-all",
       "contextType": "build",
       "workingDirectory": "\${workspaceRoot}",
-      "command": "\${workspaceRoot}/make_vs.bat",
+      "command": "\${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "\${workspaceRoot}",
         "all"
       ]
     },
@@ -74,9 +70,8 @@ cat << STOP >> tasks.vs.json
       "taskLabel": "rebuild-all",
       "contextType": "rebuild",
       "workingDirectory": "\${workspaceRoot}",
-      "command": "\${workspaceRoot}/make_vs.bat",
+      "command": "\${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "\${workspaceRoot}",
         "-B",
         "all"
       ]
@@ -87,9 +82,8 @@ cat << STOP >> tasks.vs.json
       "taskLabel": "clean-all",
       "contextType": "clean",
       "workingDirectory": "\${workspaceRoot}",
-      "command": "\${workspaceRoot}/make_vs.bat",
+      "command": "\${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "\${workspaceRoot}",
         "clean"
       ]
     },
@@ -99,9 +93,8 @@ cat << STOP >> tasks.vs.json
       "taskLabel": "clean-all-cpp",
       "contextType": "clean",
       "workingDirectory": "\${workspaceRoot}",
-      "command": "\${workspaceRoot}/make_vs.bat",
+      "command": "\${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "\${workspaceRoot}",
         "clean"
       ]
     }

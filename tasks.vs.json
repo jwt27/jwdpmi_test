@@ -7,9 +7,8 @@
       "taskLabel": "generate-tasks",
       "contextType": "build",
       "workingDirectory": "${workspaceRoot}",
-      "command": "${workspaceRoot}/make_vs.bat",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "${workspaceRoot}",
         "-B"
       ],
       "output": "tasks.vs.json"
@@ -20,11 +19,10 @@
       "taskLabel": "build-game",
       "contextType": "build",
       "workingDirectory": "${workspaceRoot}",
-      "command": "${workspaceRoot}/make_vs.bat",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "${workspaceRoot}",
         "game",
-        "/a/game.exe"
+        "FDD=/a"
       ],
       "output": "bin/game.exe"
     },
@@ -34,12 +32,11 @@
       "taskLabel": "rebuild-game",
       "contextType": "rebuild",
       "workingDirectory": "${workspaceRoot}",
-      "command": "${workspaceRoot}/make_vs.bat",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "${workspaceRoot}",
         "-B",
         "game",
-        "/a/game.exe"
+        "FDD=/a"
       ],
       "output": "bin/game.exe"
     },
@@ -49,11 +46,10 @@
       "taskLabel": "build-hello",
       "contextType": "build",
       "workingDirectory": "${workspaceRoot}",
-      "command": "${workspaceRoot}/make_vs.bat",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "${workspaceRoot}",
         "hello",
-        "/a/hello.exe"
+        "FDD=/a"
       ],
       "output": "bin/hello.exe"
     },
@@ -63,12 +59,11 @@
       "taskLabel": "rebuild-hello",
       "contextType": "rebuild",
       "workingDirectory": "${workspaceRoot}",
-      "command": "${workspaceRoot}/make_vs.bat",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "${workspaceRoot}",
         "-B",
         "hello",
-        "/a/hello.exe"
+        "FDD=/a"
       ],
       "output": "bin/hello.exe"
     },
@@ -78,11 +73,10 @@
       "taskLabel": "build-ring0",
       "contextType": "build",
       "workingDirectory": "${workspaceRoot}",
-      "command": "${workspaceRoot}/make_vs.bat",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "${workspaceRoot}",
         "ring0",
-        "/a/ring0.exe"
+        "FDD=/a"
       ],
       "output": "bin/ring0.exe"
     },
@@ -92,12 +86,11 @@
       "taskLabel": "rebuild-ring0",
       "contextType": "rebuild",
       "workingDirectory": "${workspaceRoot}",
-      "command": "${workspaceRoot}/make_vs.bat",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "${workspaceRoot}",
         "-B",
         "ring0",
-        "/a/ring0.exe"
+        "FDD=/a"
       ],
       "output": "bin/ring0.exe"
     },
@@ -107,11 +100,10 @@
       "taskLabel": "build-vbe",
       "contextType": "build",
       "workingDirectory": "${workspaceRoot}",
-      "command": "${workspaceRoot}/make_vs.bat",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "${workspaceRoot}",
         "vbe",
-        "/a/vbe.exe"
+        "FDD=/a"
       ],
       "output": "bin/vbe.exe"
     },
@@ -121,12 +113,11 @@
       "taskLabel": "rebuild-vbe",
       "contextType": "rebuild",
       "workingDirectory": "${workspaceRoot}",
-      "command": "${workspaceRoot}/make_vs.bat",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "${workspaceRoot}",
         "-B",
         "vbe",
-        "/a/vbe.exe"
+        "FDD=/a"
       ],
       "output": "bin/vbe.exe"
     },
@@ -136,9 +127,8 @@
       "taskLabel": "build-all",
       "contextType": "build",
       "workingDirectory": "${workspaceRoot}",
-      "command": "${workspaceRoot}/make_vs.bat",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "${workspaceRoot}",
         "all"
       ]
     },
@@ -148,9 +138,8 @@
       "taskLabel": "rebuild-all",
       "contextType": "rebuild",
       "workingDirectory": "${workspaceRoot}",
-      "command": "${workspaceRoot}/make_vs.bat",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "${workspaceRoot}",
         "-B",
         "all"
       ]
@@ -161,9 +150,8 @@
       "taskLabel": "clean-all",
       "contextType": "clean",
       "workingDirectory": "${workspaceRoot}",
-      "command": "${workspaceRoot}/make_vs.bat",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "${workspaceRoot}",
         "clean"
       ]
     },
@@ -173,9 +161,8 @@
       "taskLabel": "clean-all-cpp",
       "contextType": "clean",
       "workingDirectory": "${workspaceRoot}",
-      "command": "${workspaceRoot}/make_vs.bat",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
       "args": [
-        "${workspaceRoot}",
         "clean"
       ]
     }

@@ -26,7 +26,9 @@ $ git submodule update --init
 ```
 * Build:
 ```
-$ make -j
+$ make -j all                       # build all subprograms
+$ make -j hello                     # build only "Hello World"
+$ make -j hello FDD=/media/floppy   # build "Hello World" and copy it to a floppy disk
 ```
 
 ## To build with Visual Studio:
@@ -38,7 +40,6 @@ $ make -j
 > setx MSYS2_DJGPP /usr/local/cross	# Where you installed gcc (`--prefix=...`)
 ```
 * Build and install [gcc2vs](https://github.com/jwt27/gcc2vs).
-* Run `make -B vs` in the root directory of this repository to generate project files.
 * Open this project in Visual Studio by selecting "Open Folder".
 * Select a startup item.
 * Press Ctrl-B to build.
