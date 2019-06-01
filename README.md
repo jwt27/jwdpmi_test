@@ -38,16 +38,17 @@ $ make -j
 > setx MSYS2_DJGPP /usr/local/cross	# Where you installed gcc (`--prefix=...`)
 ```
 * Build and install [gcc2vs](https://github.com/jwt27/gcc2vs).
+* Run `make -B vs` in the root directory of this repository to generate project files.
 * Open this project in Visual Studio by selecting "Open Folder".
-* Select `makefile` as the "startup item".
-* Press ctrl-b to build.
+* Select a startup item.
+* Press Ctrl-B to build.
 
 ## To debug with Visual Studio:
 * Make sure you have a cross-gdb installed in `%MSYS2_DJGPP%/bin/i686-pc-msdosdjgpp-gdb`.
 * Connect your target machine with a serial null-modem cable on COM1.
-* Select `Debug (remote COM1)` as startup item in VS.
-* Build and copy `dpmitest.exe` to the target machine.
-* Launch the target with `dpmitest.exe --debug`.
+* Select `hello (remote COM1)` as startup item in VS.
+* Build and copy `hello.exe` to the target machine.
+* Launch the target with `hello.exe --debug`.
 * Hit F5 in Visual Studio. Have fun.
 
 ![debugging example](https://i.imgur.com/HsREynj.png)

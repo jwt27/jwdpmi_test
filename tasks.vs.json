@@ -2,7 +2,144 @@
   "version": "0.2.1",
   "tasks": [
     {
-      "appliesTo": "/src/*.cpp",
+      "appliesTo": "tools/generate-vs-tasks.sh",
+      "type": "launch",
+      "taskLabel": "generate-tasks",
+      "contextType": "build",
+      "workingDirectory": "${workspaceRoot}",
+      "command": "${workspaceRoot}/make_vs.bat",
+      "args": [
+        "${workspaceRoot}",
+        "-B"
+      ],
+      "output": "tasks.vs.json"
+    },
+    {
+      "appliesTo": "/src/game.cpp",
+      "type": "launch",
+      "taskLabel": "build-game",
+      "contextType": "build",
+      "workingDirectory": "${workspaceRoot}",
+      "command": "${workspaceRoot}/make_vs.bat",
+      "args": [
+        "${workspaceRoot}",
+        "bin/game.exe",
+        "bin/game.asm",
+        "/a/game.exe"
+      ],
+      "output": "bin/game.exe"
+    },
+    {
+      "appliesTo": "/src/game.cpp",
+      "type": "launch",
+      "taskLabel": "rebuild-game",
+      "contextType": "rebuild",
+      "workingDirectory": "${workspaceRoot}",
+      "command": "${workspaceRoot}/make_vs.bat",
+      "args": [
+        "${workspaceRoot}",
+        "-B",
+        "bin/game.exe",
+        "bin/game.asm",
+        "/a/game.exe"
+      ],
+      "output": "bin/game.exe"
+    },
+    {
+      "appliesTo": "/src/hello.cpp",
+      "type": "launch",
+      "taskLabel": "build-hello",
+      "contextType": "build",
+      "workingDirectory": "${workspaceRoot}",
+      "command": "${workspaceRoot}/make_vs.bat",
+      "args": [
+        "${workspaceRoot}",
+        "bin/hello.exe",
+        "bin/hello.asm",
+        "/a/hello.exe"
+      ],
+      "output": "bin/hello.exe"
+    },
+    {
+      "appliesTo": "/src/hello.cpp",
+      "type": "launch",
+      "taskLabel": "rebuild-hello",
+      "contextType": "rebuild",
+      "workingDirectory": "${workspaceRoot}",
+      "command": "${workspaceRoot}/make_vs.bat",
+      "args": [
+        "${workspaceRoot}",
+        "-B",
+        "bin/hello.exe",
+        "bin/hello.asm",
+        "/a/hello.exe"
+      ],
+      "output": "bin/hello.exe"
+    },
+    {
+      "appliesTo": "/src/ring0.cpp",
+      "type": "launch",
+      "taskLabel": "build-ring0",
+      "contextType": "build",
+      "workingDirectory": "${workspaceRoot}",
+      "command": "${workspaceRoot}/make_vs.bat",
+      "args": [
+        "${workspaceRoot}",
+        "bin/ring0.exe",
+        "bin/ring0.asm",
+        "/a/ring0.exe"
+      ],
+      "output": "bin/ring0.exe"
+    },
+    {
+      "appliesTo": "/src/ring0.cpp",
+      "type": "launch",
+      "taskLabel": "rebuild-ring0",
+      "contextType": "rebuild",
+      "workingDirectory": "${workspaceRoot}",
+      "command": "${workspaceRoot}/make_vs.bat",
+      "args": [
+        "${workspaceRoot}",
+        "-B",
+        "bin/ring0.exe",
+        "bin/ring0.asm",
+        "/a/ring0.exe"
+      ],
+      "output": "bin/ring0.exe"
+    },
+    {
+      "appliesTo": "/src/vbe.cpp",
+      "type": "launch",
+      "taskLabel": "build-vbe",
+      "contextType": "build",
+      "workingDirectory": "${workspaceRoot}",
+      "command": "${workspaceRoot}/make_vs.bat",
+      "args": [
+        "${workspaceRoot}",
+        "bin/vbe.exe",
+        "bin/vbe.asm",
+        "/a/vbe.exe"
+      ],
+      "output": "bin/vbe.exe"
+    },
+    {
+      "appliesTo": "/src/vbe.cpp",
+      "type": "launch",
+      "taskLabel": "rebuild-vbe",
+      "contextType": "rebuild",
+      "workingDirectory": "${workspaceRoot}",
+      "command": "${workspaceRoot}/make_vs.bat",
+      "args": [
+        "${workspaceRoot}",
+        "-B",
+        "bin/vbe.exe",
+        "bin/vbe.asm",
+        "/a/vbe.exe"
+      ],
+      "output": "bin/vbe.exe"
+    },
+{
+      "appliesTo": "makefile",
       "type": "launch",
       "taskLabel": "build-all",
       "contextType": "build",
@@ -11,11 +148,10 @@
       "args": [
         "${workspaceRoot}",
         "all"
-      ],
-      "output": "bin/*.exe"
+      ]
     },
     {
-      "appliesTo": "/src/*.cpp",
+      "appliesTo": "makefile",
       "type": "launch",
       "taskLabel": "rebuild-all",
       "contextType": "rebuild",
@@ -25,13 +161,24 @@
         "${workspaceRoot}",
         "-B",
         "all"
-      ],
-      "output": "bin/*.exe"
+      ]
+    },
+    {
+      "appliesTo": "makefile",
+      "type": "launch",
+      "taskLabel": "clean-all",
+      "contextType": "clean",
+      "workingDirectory": "${workspaceRoot}",
+      "command": "${workspaceRoot}/make_vs.bat",
+      "args": [
+        "${workspaceRoot}",
+        "clean"
+      ]
     },
     {
       "appliesTo": "/src/*.cpp",
       "type": "launch",
-      "taskLabel": "clean-all",
+      "taskLabel": "clean-all-cpp",
       "contextType": "clean",
       "workingDirectory": "${workspaceRoot}",
       "command": "${workspaceRoot}/make_vs.bat",

@@ -50,10 +50,12 @@ LIBJWDPMI := lib/libjwdpmi/bin/libjwdpmi.a
 SRCDIR := src
 OUTDIR := bin
 OBJDIR := obj
+
 SRC := $(wildcard $(SRCDIR)/*.cpp)
 OBJ := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 DEP := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.d)
 EXE := $(SRC:$(SRCDIR)/%.cpp=$(OUTDIR)/%.exe)
+EXE_DEBUG := $(SRC:$(SRCDIR)/%.cpp=$(OUTDIR)/%-debug.exe)
 ASM := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.asm)
 ASMDUMP := $(SRC:$(SRCDIR)/%.cpp=$(OUTDIR)/%.asm)
 PREPROCESSED := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.ii)
@@ -66,7 +68,7 @@ endif
 
 .PHONY: all clean vs libjwdpmi asm preprocessed
 
-all: $(EXE) $(ASMDUMP)
+all: $(EXE) $(EXE_DEBUG) $(ASMDUMP)
 
 preprocessed: $(PREPROCESSED)
 	$(MAKE) preprocessed -C lib/libjwdpmi/
@@ -75,13 +77,19 @@ asm: $(ASM) $(ASMDUMP)
 	$(MAKE) asm -C lib/libjwdpmi/
 
 clean:
-	rm -f $(OBJ) $(DEP) $(ASM) $(PREPROCESSED) $(ASMDUMP)
+	rm -f $(OBJ) $(DEP) $(ASM) $(PREPROCESSED) $(ASMDUMP) $(EXE) $(EXE_DEBUG)
 	$(MAKE) clean -C lib/libjwdpmi/
 
-vs:
+vs: tasks.vs.json launch.vs.json
 	@echo "void main(){}" > _temp.cpp
 	$(CXX) -dM -E $(CXXFLAGS) _temp.cpp > tools/gcc_defines.h
 	@rm _temp.*
+
+tasks.vs.json:
+	./tools/generate-vs-tasks.sh
+
+launch.vs.json:
+	./tools/generate-vs-launch.sh
 
 export CC CXX AR CXXFLAGS PIPECMD
 libjwdpmi:
@@ -106,7 +114,7 @@ $(OUTDIR)/%.exe: $(OUTDIR)/%-debug.exe | $(OUTDIR)
 	upx --best $@
 	touch $@
 
-$(FDD)/$(OUTPUT_PACKED): $(OUTDIR)/$(OUTPUT_PACKED)
+$(FDD)/%.exe: $(OUTDIR)/%.exe
 	-[ -d $(dir $@) ] && rsync -vu --inplace --progress $< $@ # copy to floppy
 
 $(OUTDIR)/%.asm: $(OUTDIR)/%.exe | $(OUTDIR)
