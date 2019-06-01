@@ -1,5 +1,5 @@
 program_exists = $(shell which $(1) > /dev/null && echo $(1))
-pick_tool = $(or $(call program_exists, $(join i586-pc-msdosdjgpp-,$(1))), $(1))
+pick_tool = $(or $(call program_exists, $(join i686-pc-msdosdjgpp-,$(1))), $(1))
 
 CXX := $(or $(shell echo $$CXX), $(call pick_tool, g++))
 AR := $(or $(shell echo $$AR), $(call pick_tool, ar))
@@ -13,11 +13,11 @@ CXXFLAGS += -masm=intel
 CXXFLAGS += -MD -MP
 CXXFLAGS += -O3 -ffast-math
 #CXXFLAGS += -O0 -ffast-math
-CXXFLAGS += -flto -flto-odr-type-merging
-#CXXFLAGS += -ggdb3
+#CXXFLAGS += -flto -flto-odr-type-merging
+CXXFLAGS += -ggdb3 -gsplit-dwarf
 CXXFLAGS += -floop-nest-optimize -fgraphite-identity
-CXXFLAGS += -march=pentium3 -mfpmath=both
-#CXXFLAGS += -march=pentium-mmx
+#CXXFLAGS += -march=pentium3 -mfpmath=both
+CXXFLAGS += -march=pentium-mmx
 CXXFLAGS += -std=gnu++17 -fconcepts
 CXXFLAGS += -Wall -Wextra
 # CXXFLAGS += -Wdisabled-optimization -Winline 
@@ -34,6 +34,10 @@ CXXFLAGS += -mcld
 CXXFLAGS += -mpreferred-stack-boundary=4
 CXXFLAGS += -fstrict-volatile-bitfields
 CXXFLAGS += -D_DEBUG
+#CXXFLAGS += -fopt-info-missed
+#CXXFLAGS += -fsanitize=undefined -fsanitize-undefined-trap-on-error
+#CXXFLAGS += -fsanitize=address
+
 #CXXFLAGS += -save-temps
 
 #LDFLAGS += -Wl,-Map,bin/debug.map

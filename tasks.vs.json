@@ -4,7 +4,7 @@
     {
       "appliesTo": "makefile",
       "type": "launch",
-      "taskName": "makefile-build",
+      "taskLabel": "makefile-build",
       "contextType": "build",
       "workingDirectory": "${workspaceRoot}",
       "command": "${workspaceRoot}/make_vs.bat",
@@ -17,7 +17,7 @@
     {
       "appliesTo": "makefile",
       "type": "launch",
-      "taskName": "makefile-rebuild",
+      "taskLabel": "makefile-rebuild",
       "contextType": "rebuild",
       "workingDirectory": "${workspaceRoot}",
       "command": "${workspaceRoot}/make_vs.bat",
@@ -31,7 +31,7 @@
     {
       "appliesTo": "makefile",
       "type": "launch",
-      "taskName": "makefile-clean",
+      "taskLabel": "makefile-clean",
       "contextType": "clean",
       "workingDirectory": "${workspaceRoot}",
       "command": "${workspaceRoot}/make_vs.bat",
