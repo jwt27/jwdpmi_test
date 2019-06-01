@@ -1,10 +1,10 @@
 program_exists = $(shell which $(1) > /dev/null && echo $(1))
-pick_tool = $(or $(call program_exists, $(join i686-pc-msdosdjgpp-,$(1))), $(1))
+pick_tool = $(or $(call program_exists, i686-pc-msdosdjgpp-$(1)), $(1))
 
-CXX := $(or $(shell echo $$CXX), $(call pick_tool, g++))
-AR := $(or $(shell echo $$AR), $(call pick_tool, ar))
-OBJDUMP := $(or $(shell echo $$OBJDUMP), $(call pick_tool, objdump))
-STRIP := $(or $(shell echo $$STRIP), $(call pick_tool, strip))
+CXX := $(or $(shell echo $$CXX), $(call pick_tool,g++))
+AR := $(or $(shell echo $$AR), $(call pick_tool,ar))
+OBJDUMP := $(or $(shell echo $$OBJDUMP), $(call pick_tool,objdump))
+STRIP := $(or $(shell echo $$STRIP), $(call pick_tool,strip))
 
 FDD := $(or $(FDD), /a)
 
@@ -20,6 +20,7 @@ CXXFLAGS += -floop-nest-optimize -fgraphite-identity
 CXXFLAGS += -march=pentium-mmx
 CXXFLAGS += -std=gnu++17 -fconcepts
 CXXFLAGS += -Wall -Wextra
+CXXFLAGS += -Wno-attributes
 # CXXFLAGS += -Wdisabled-optimization -Winline 
 # CXXFLAGS += -Wsuggest-attribute=pure 
 # CXXFLAGS += -Wsuggest-attribute=const
@@ -47,18 +48,15 @@ INCLUDE := -iquote include -Ilib/libjwdpmi/include
 LIBS := -Llib/libjwdpmi/bin -ljwdpmi
 LIBJWDPMI := lib/libjwdpmi/bin/libjwdpmi.a
 
-SRCDIR := src
-OUTDIR := bin
-OBJDIR := obj
-
-SRC := $(wildcard $(SRCDIR)/*.cpp)
-OBJ := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
-DEP := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.d)
-EXE := $(SRC:$(SRCDIR)/%.cpp=$(OUTDIR)/%.exe)
-EXE_DEBUG := $(SRC:$(SRCDIR)/%.cpp=$(OUTDIR)/%-debug.exe)
-ASM := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.asm)
-ASMDUMP := $(SRC:$(SRCDIR)/%.cpp=$(OUTDIR)/%.asm)
-PREPROCESSED := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.ii)
+SRC := $(wildcard src/*.cpp)
+TARGETS := $(SRC:src/%.cpp=%)
+OBJ := $(TARGETS:%=obj/%.o)
+DEP := $(TARGETS:%=obj/%.d)
+EXE := $(TARGETS:%=bin/%.exe)
+EXE_DEBUG := $(TARGETS:%=bin/%-debug.exe)
+ASM := $(TARGETS:%=obj/%.asm)
+ASMDUMP := $(TARGETS:%=bin/%.asm)
+PREPROCESSED := $(TARGETS:%=obj/%.ii)
 
 ifneq ($(findstring vs,$(MAKECMDGOALS)),)
     PIPECMD := 2>&1 | gcc2vs
@@ -66,7 +64,14 @@ else
     PIPECMD :=
 endif
 
-.PHONY: all clean vs libjwdpmi asm preprocessed
+make-target = $(1): bin/$(strip $1).exe bin/$(1)-debug.exe bin/$(1).asm
+$(foreach target, $(TARGETS), $(eval $(call make-target,$(target))))
+
+.PHONY: all clean vs libjwdpmi asm preprocessed $(TARGETS)
+
+test:
+	echo $(EXE)
+	echo $(call make-target,test)
 
 all: $(EXE) $(EXE_DEBUG) $(ASMDUMP)
 
@@ -98,35 +103,35 @@ libjwdpmi:
 
 $(LIBJWDPMI): libjwdpmi
 
-$(OUTDIR): 
-	mkdir -p $(OUTDIR)
+bin:
+	mkdir -p bin
 
-$(OBJDIR):
-	mkdir -p $(OBJDIR)
+obj:
+	mkdir -p obj
 
-$(OUTDIR)/%-debug.exe: $(OBJDIR)/%.o $(LIBJWDPMI) | $(OUTDIR)
+bin/%-debug.exe: obj/%.o $(LIBJWDPMI) | bin
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $< $(LIBS) $(PIPECMD)
 #	stubedit $@ dpmi=hdpmi32.exe
 
-$(OUTDIR)/%.exe: $(OUTDIR)/%-debug.exe | $(OUTDIR)
+bin/%.exe: bin/%-debug.exe | bin
 	cp $< $@
 	$(STRIP) -S $@
 	upx --best $@
 	touch $@
 
-$(FDD)/%.exe: $(OUTDIR)/%.exe
+$(FDD)/%.exe: bin/%.exe
 	-[ -d $(dir $@) ] && rsync -vu --inplace --progress $< $@ # copy to floppy
 
-$(OUTDIR)/%.asm: $(OUTDIR)/%.exe | $(OUTDIR)
+bin/%.asm: bin/%.exe | bin
 	$(OBJDUMP) -M intel-mnemonic --insn-width=10 -C -w -d $< > $@
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
+obj/%.o: src/%.cpp | obj
 	$(CXX) $(CXXFLAGS) -o $@ -MF $(@:.o=.d) $(INCLUDE) -c $< $(PIPECMD)
 
-$(OBJDIR)/%.asm: $(SRCDIR)/%.cpp | $(OBJDIR)
+obj/%.asm: src/%.cpp | obj
 	$(CXX) $(CXXFLAGS) -S -o $@ $(INCLUDE) -c $<
 
-$(OBJDIR)/%.ii: $(SRCDIR)/%.cpp | $(OBJDIR)
+obj/%.ii: src/%.cpp | obj
 	$(CXX) $(CXXFLAGS) -E -o $@ $(INCLUDE) -c $<
 
 ifneq ($(MAKECMDGOALS),clean)

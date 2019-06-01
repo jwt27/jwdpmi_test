@@ -23,9 +23,7 @@
       "command": "${workspaceRoot}/make_vs.bat",
       "args": [
         "${workspaceRoot}",
-        "bin/game.exe",
-        "bin/game.asm",
-        "/a/game.exe"
+        "game"
       ],
       "output": "bin/game.exe"
     },
@@ -39,9 +37,7 @@
       "args": [
         "${workspaceRoot}",
         "-B",
-        "bin/game.exe",
-        "bin/game.asm",
-        "/a/game.exe"
+        "game"
       ],
       "output": "bin/game.exe"
     },
@@ -54,9 +50,7 @@
       "command": "${workspaceRoot}/make_vs.bat",
       "args": [
         "${workspaceRoot}",
-        "bin/hello.exe",
-        "bin/hello.asm",
-        "/a/hello.exe"
+        "hello"
       ],
       "output": "bin/hello.exe"
     },
@@ -70,9 +64,7 @@
       "args": [
         "${workspaceRoot}",
         "-B",
-        "bin/hello.exe",
-        "bin/hello.asm",
-        "/a/hello.exe"
+        "hello"
       ],
       "output": "bin/hello.exe"
     },
@@ -85,9 +77,7 @@
       "command": "${workspaceRoot}/make_vs.bat",
       "args": [
         "${workspaceRoot}",
-        "bin/ring0.exe",
-        "bin/ring0.asm",
-        "/a/ring0.exe"
+        "ring0"
       ],
       "output": "bin/ring0.exe"
     },
@@ -101,9 +91,7 @@
       "args": [
         "${workspaceRoot}",
         "-B",
-        "bin/ring0.exe",
-        "bin/ring0.asm",
-        "/a/ring0.exe"
+        "ring0"
       ],
       "output": "bin/ring0.exe"
     },
@@ -116,9 +104,7 @@
       "command": "${workspaceRoot}/make_vs.bat",
       "args": [
         "${workspaceRoot}",
-        "bin/vbe.exe",
-        "bin/vbe.asm",
-        "/a/vbe.exe"
+        "vbe"
       ],
       "output": "bin/vbe.exe"
     },
@@ -132,9 +118,7 @@
       "args": [
         "${workspaceRoot}",
         "-B",
-        "bin/vbe.exe",
-        "bin/vbe.asm",
-        "/a/vbe.exe"
+        "vbe"
       ],
       "output": "bin/vbe.exe"
     },

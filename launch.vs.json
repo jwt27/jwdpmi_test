@@ -127,7 +127,7 @@
       "launchCompleteCommand": "exec-continue"
     },
     {
-      "name": "--> Generate VS project files",
+      "name": "--> Regenerate VS project files",
       "type": "default",
       "project": "tools/generate-vs-tasks.sh"
     },

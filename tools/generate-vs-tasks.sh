@@ -32,9 +32,7 @@ for file in $(ls src/*.cpp); do
       "command": "\${workspaceRoot}/make_vs.bat",
       "args": [
         "\${workspaceRoot}",
-        "bin/${f}.exe",
-        "bin/${f}.asm",
-        "/a/${f}.exe"
+        "${f}"
       ],
       "output": "bin/${f}.exe"
     },
@@ -48,9 +46,7 @@ for file in $(ls src/*.cpp); do
       "args": [
         "\${workspaceRoot}",
         "-B",
-        "bin/${f}.exe",
-        "bin/${f}.asm",
-        "/a/${f}.exe"
+        "${f}"
       ],
       "output": "bin/${f}.exe"
     },
