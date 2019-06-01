@@ -47,17 +47,15 @@ INCLUDE := -iquote include -Ilib/libjwdpmi/include
 LIBS := -Llib/libjwdpmi/bin -ljwdpmi
 LIBJWDPMI := lib/libjwdpmi/bin/libjwdpmi.a
 
-OUTPUT := dpmitest-debug.exe
-OUTPUT_PACKED := dpmitest.exe
-OUTPUT_DUMP := main.asm
-
 SRCDIR := src
 OUTDIR := bin
 OBJDIR := obj
 SRC := $(wildcard $(SRCDIR)/*.cpp)
 OBJ := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 DEP := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.d)
+EXE := $(SRC:$(SRCDIR)/%.cpp=$(OUTDIR)/%.exe)
 ASM := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.asm)
+ASMDUMP := $(SRC:$(SRCDIR)/%.cpp=$(OUTDIR)/%.asm)
 PREPROCESSED := $(SRC:$(SRCDIR)/%.cpp=$(OBJDIR)/%.ii)
 
 ifneq ($(findstring vs,$(MAKECMDGOALS)),)
@@ -68,16 +66,16 @@ endif
 
 .PHONY: all clean vs libjwdpmi asm preprocessed
 
-all: $(OUTDIR)/$(OUTPUT_PACKED) $(OUTDIR)/$(OUTPUT_DUMP) $(FDD)/$(OUTPUT_PACKED)
+all: $(EXE) $(ASMDUMP)
 
 preprocessed: $(PREPROCESSED)
 	$(MAKE) preprocessed -C lib/libjwdpmi/
 
-asm: $(ASM)
+asm: $(ASM) $(ASMDUMP)
 	$(MAKE) asm -C lib/libjwdpmi/
 
 clean:
-	rm -f $(OBJ) $(DEP) $(ASM) $(PREPROCESSED) $(OUTDIR)/$(OUTPUT) $(OUTDIR)/$(OUTPUT_PACKED) $(OUTDIR)/$(OUTPUT_DUMP)
+	rm -f $(OBJ) $(DEP) $(ASM) $(PREPROCESSED) $(ASMDUMP)
 	$(MAKE) clean -C lib/libjwdpmi/
 
 vs:
@@ -98,11 +96,11 @@ $(OUTDIR):
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
 
-$(OUTDIR)/$(OUTPUT): $(OBJ) $(LIBJWDPMI) | $(OUTDIR)
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LIBS) $(PIPECMD)
+$(OUTDIR)/%-debug.exe: $(OBJDIR)/%.o $(LIBJWDPMI) | $(OUTDIR)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $< $(LIBS) $(PIPECMD)
 #	stubedit $@ dpmi=hdpmi32.exe
 
-$(OUTDIR)/$(OUTPUT_PACKED): $(OUTDIR)/$(OUTPUT) | $(OUTDIR)
+$(OUTDIR)/%.exe: $(OUTDIR)/%-debug.exe | $(OUTDIR)
 	cp $< $@
 	$(STRIP) -S $@
 	upx --best $@
@@ -111,7 +109,7 @@ $(OUTDIR)/$(OUTPUT_PACKED): $(OUTDIR)/$(OUTPUT) | $(OUTDIR)
 $(FDD)/$(OUTPUT_PACKED): $(OUTDIR)/$(OUTPUT_PACKED)
 	-[ -d $(dir $@) ] && rsync -vu --inplace --progress $< $@ # copy to floppy
 
-$(OUTDIR)/$(OUTPUT_DUMP): $(OUTDIR)/$(OUTPUT) | $(OUTDIR)
+$(OUTDIR)/%.asm: $(OUTDIR)/%.exe | $(OUTDIR)
 	$(OBJDUMP) -M intel-mnemonic --insn-width=10 -C -w -d $< > $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)

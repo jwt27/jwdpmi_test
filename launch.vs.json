@@ -4,12 +4,12 @@
   "configurations": [
     {
       "type": "cppdbg",
-      "name": "Debug (local VM)",
-      "project": "makefile",
+      "name": "ring0 (local VM)",
+      "project": "src/ring0.cpp",
       "cwd": "${workspaceRoot}",
       "MIMode": "gdb",
       "miDebuggerPath": "${workspaceRoot}/tools/gdb.bat",
-      "program": "${workspaceRoot}/bin/dpmitest-debug.exe",
+      "program": "${workspaceRoot}/bin/ring0-debug.exe",
       "setupCommands": [
         { "text": "set auto-load local-gdbinit" }
       ],
@@ -19,12 +19,12 @@
     },
     {
       "type": "cppdbg",
-      "name": "Debug (serial COM1)",
-      "project": "makefile",
+      "name": "ring0 (serial COM1)",
+      "project": "src/ring0.cpp",
       "cwd": "${workspaceRoot}/tools/",
       "MIMode": "gdb",
       "miDebuggerPath": "${workspaceRoot}/tools/gdb.bat",
-      "program": "${workspaceRoot}/bin/dpmitest-debug.exe",
+      "program": "${workspaceRoot}/bin/ring0-debug.exe",
       "setupCommands": [
         { "text": "set auto-load local-gdbinit" },
         { "text": "set serial baud 115200" }

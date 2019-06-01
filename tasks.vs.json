@@ -2,9 +2,9 @@
   "version": "0.2.1",
   "tasks": [
     {
-      "appliesTo": "makefile",
+      "appliesTo": "/src/*.cpp",
       "type": "launch",
-      "taskLabel": "makefile-build",
+      "taskLabel": "build-all",
       "contextType": "build",
       "workingDirectory": "${workspaceRoot}",
       "command": "${workspaceRoot}/make_vs.bat",
@@ -12,12 +12,12 @@
         "${workspaceRoot}",
         "all"
       ],
-      "output": "bin/dpmitest.exe"
+      "output": "bin/*.exe"
     },
     {
-      "appliesTo": "makefile",
+      "appliesTo": "/src/*.cpp",
       "type": "launch",
-      "taskLabel": "makefile-rebuild",
+      "taskLabel": "rebuild-all",
       "contextType": "rebuild",
       "workingDirectory": "${workspaceRoot}",
       "command": "${workspaceRoot}/make_vs.bat",
@@ -26,12 +26,12 @@
         "-B",
         "all"
       ],
-      "output": "bin/dpmitest.exe"
+      "output": "bin/*.exe"
     },
     {
-      "appliesTo": "makefile",
+      "appliesTo": "/src/*.cpp",
       "type": "launch",
-      "taskLabel": "makefile-clean",
+      "taskLabel": "clean-all",
       "contextType": "clean",
       "workingDirectory": "${workspaceRoot}",
       "command": "${workspaceRoot}/make_vs.bat",
