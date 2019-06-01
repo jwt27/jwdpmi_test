@@ -1,8 +1,8 @@
 # jwdpmi_test
 This repository contains several applications to test and demonstrate the use of [libjwdpmi](https://github.com/jwt27/libjwdpmi). It also serves as a project template to start developing and debugging DPMI programs in Visual Studio.
 
-## Branches:
-### `master`
+## Test programs:
+### `hello`
 A simple "Hello World" application.
 
 ### `game`
@@ -13,8 +13,11 @@ Demonstrates the use of timers, vectors, remapped DOS memory, keyboard and joyst
 Displays an animation with real-time alpha-blending, using both integer (MMX) and floating-point (SSE) math.
 Demonstrates the VBE graphics interface and pixel layout structures.
 
+### `ring0`
+Application to test ring 0 access.
+
 ## To build:
-* Build and install gcc with [`--target=i586-pc-msdosdjgpp-g++`](https://github.com/jwt27/build-gcc).
+* Build and install gcc with [`--target=i686-pc-msdosdjgpp-g++`](https://github.com/jwt27/build-gcc).
 * Clone this repo with its submodule:
 ```
 $ git clone https://github.com/jwt27/jwdpmi_test.git
@@ -27,8 +30,8 @@ $ make -j
 ```
 
 ## To build with Visual Studio:
-* Install Visual Studio 2017.
-* Build and install [i586-pc-msdosdjgpp-g++](https://github.com/jwt27/build-gcc) with mingw64.
+* Install Visual Studio 2019.
+* Build and install [i686-pc-msdosdjgpp-g++](https://github.com/jwt27/build-gcc) with mingw64.
 * Set up two global environment variables:
 ```
 > setx MSYS2_ROOT C:\msys64		# Where you installed MSYS2
@@ -37,10 +40,10 @@ $ make -j
 * Build and install [gcc2vs](https://github.com/jwt27/gcc2vs).
 * Open this project in Visual Studio by selecting "Open Folder".
 * Select `makefile` as the "startup item".
-* Press ctrl-shift-b to build.
+* Press ctrl-b to build.
 
 ## To debug with Visual Studio:
-* Make sure you have a cross-gdb installed in `%MSYS2_DJGPP%/bin/i586-pc-msdosdjgpp-gdb`.
+* Make sure you have a cross-gdb installed in `%MSYS2_DJGPP%/bin/i686-pc-msdosdjgpp-gdb`.
 * Connect your target machine with a serial null-modem cable on COM1.
 * Select `Debug (remote COM1)` as startup item in VS.
 * Build and copy `dpmitest.exe` to the target machine.
