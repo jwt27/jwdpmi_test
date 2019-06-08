@@ -116,7 +116,7 @@ bin/%.exe: bin/%-debug.exe | bin
 $(FDD)/%.exe: bin/%.exe
 	-[ ! -z $(FDD) ] && [ -d $(FDD) ] && rsync -vu --inplace --progress $< $@ # copy to floppy
 
-bin/%.asm: bin/%.exe | bin
+bin/%.asm: bin/%-debug.exe | bin
 	$(OBJDUMP) -M intel-mnemonic --insn-width=10 -C -w -d $< > $@
 
 obj/%.o: src/%.cpp | obj
