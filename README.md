@@ -13,6 +13,9 @@ Demonstrates the use of timers, vectors, remapped DOS memory, keyboard and joyst
 Displays an animation with real-time alpha-blending, using both integer (MMX) and floating-point (SSE) math.
 Demonstrates the VBE graphics interface and pixel layout structures.
 
+### `keys`
+Application to test keyboard functionality.
+
 ### `ring0`
 Application to test ring 0 access.
 

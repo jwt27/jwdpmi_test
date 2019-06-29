@@ -68,6 +68,33 @@
       "output": "bin/hello.exe"
     },
     {
+      "appliesTo": "/src/keys.cpp",
+      "type": "launch",
+      "taskLabel": "build-keys",
+      "contextType": "build",
+      "workingDirectory": "${workspaceRoot}",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
+      "args": [
+        "keys",
+        "FDD=/a"
+      ],
+      "output": "bin/keys.exe"
+    },
+    {
+      "appliesTo": "/src/keys.cpp",
+      "type": "launch",
+      "taskLabel": "rebuild-keys",
+      "contextType": "rebuild",
+      "workingDirectory": "${workspaceRoot}",
+      "command": "${workspaceRoot}/tools/make_vs.bat",
+      "args": [
+        "-B",
+        "keys",
+        "FDD=/a"
+      ],
+      "output": "bin/keys.exe"
+    },
+    {
       "appliesTo": "/src/ring0.cpp",
       "type": "launch",
       "taskLabel": "build-ring0",
