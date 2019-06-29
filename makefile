@@ -114,7 +114,7 @@ bin/%.exe: bin/%-debug.exe | bin
 	touch $@
 
 $(FDD)/%.exe: bin/%.exe
-	-[ ! -z $(FDD) ] && [ -d $(FDD) ] && rsync -vu --inplace --progress $< $@ # copy to floppy
+	-[ ! -z $(FDD) ] && [ -d $(FDD) ] && rm -f $(addsuffix .exe,$(addprefix $(FDD)/,$(TARGETS))) && rsync -vu --inplace --progress $< $@ # copy to floppy
 
 bin/%.asm: bin/%-debug.exe | bin
 	$(OBJDUMP) -M intel-mnemonic --insn-width=10 -C -w -d $< > $@
