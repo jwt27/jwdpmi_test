@@ -3,7 +3,7 @@
 #include <string_view>
 #include <jw/alloc.h>
 #include <jw/vector.h>
-#include <jw/matrix.h>
+#include <jw/grid.h>
 #include <jw/video/pixel.h>
 #include <jw/video/vbe.h>
 #include <jw/video/ansi.h>
@@ -61,7 +61,7 @@ void vbe_test()
     std::size_t line_size = mode.second.linear_bytes_per_scanline / pixel_size;
     std::size_t lfb_size = line_size * mode.second.resolution_y * mode.second.linear_num_image_pages;
     dpmi::device_memory<pixel> screen_ptr { lfb_size, mode.second.physical_base_ptr, true };
-    matrix<pixel> screen { line_size, mode.second.resolution_y, screen_ptr.get_ptr() };
+    grid<pixel> screen { line_size, mode.second.resolution_y, screen_ptr.get_ptr() };
     auto r = screen.range({ 0, 0 }, { mode.second.resolution_x, mode.second.resolution_y });
     //auto r2 = screen.range({ 0, mode.second.resolution_y }, { mode.second.resolution_x, mode.second.resolution_y });
 
@@ -69,8 +69,8 @@ void vbe_test()
     std::size_t resx = mode.second.resolution_x;
     std::size_t resy = mode.second.resolution_y;
 
-    matrix_container<std::conditional_t<std::is_floating_point_v<render_type>, video::pxfn, video::px32n>> bg { resx, resy };
-    matrix_container<std::conditional_t<std::is_floating_point_v<render_type>, video::pxf, video::px32a>> fg { resx, resy };
+    grid_container<std::conditional_t<std::is_floating_point_v<render_type>, video::pxfn, video::px32n>> bg { resx, resy };
+    grid_container<std::conditional_t<std::is_floating_point_v<render_type>, video::pxf, video::px32a>> fg { resx, resy };
 
     fg.fill_nowrap(video::pxf { 0,0,0,0 });
 

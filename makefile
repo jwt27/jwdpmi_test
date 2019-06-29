@@ -16,7 +16,7 @@ CXXFLAGS += -ggdb3 -gsplit-dwarf
 CXXFLAGS += -floop-nest-optimize -fgraphite-identity
 #CXXFLAGS += -march=pentium3 -mfpmath=both
 CXXFLAGS += -march=pentium-mmx
-CXXFLAGS += -std=gnu++17 -fconcepts
+CXXFLAGS += -std=gnu++2a -fconcepts
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += -Wno-attributes
 # CXXFLAGS += -Wdisabled-optimization -Winline 

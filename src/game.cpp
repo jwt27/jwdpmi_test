@@ -5,7 +5,7 @@
 #include <jw/dpmi/memory.h>
 #include <jw/io/keyboard.h>
 #include <jw/vector.h>
-#include <jw/matrix.h>
+#include <jw/grid.h>
 #include <jw/video/pixel.h>
 #include <jw/io/gameport.h>
 #include <jw/video/ansi.h>
@@ -24,15 +24,15 @@ void game()
     thread::yield_for(2s);
 
     dpmi::mapped_dos_memory<video::text_char> screen_ptr { 80 * 50, dpmi::far_ptr16 { 0xB800, 0 } };
-    matrix<video::text_char> screen { 80, 50, screen_ptr.get_ptr() };
+    grid<video::text_char> screen { 80, 50, screen_ptr.get_ptr() };
 
-    fixed_matrix<video::text_char, 80, 50> m { };
+    fixed_grid<video::text_char, 80, 50> m { };
     m.fill(video::text_char { ' ', 0xf, 1 });
 
     auto r = m.range({ 5,5 }, { 70,40 });
     r.fill(video::text_char { ' ', 0, 2 });
 
-    matrix_container<clock::time_point> time_points { r.size() };
+    grid_container<clock::time_point> time_points { r.size() };
 
     io::keyboard keyb { };
     std::optional<io::gameport> joystick;
