@@ -41,7 +41,7 @@ namespace jw
         constexpr bool enable_gdb_interrupts = true;
 
         // Enable debug messages from the gdb interface
-        constexpr bool enable_gdb_debug_messages = true;
+        constexpr bool enable_gdb_debug_messages = false;
 
         // Display raw packet data from serial gdb interface
         constexpr bool enable_gdb_protocol_dump = false;

@@ -1,5 +1,5 @@
-program_exists = $(shell which $(1) > /dev/null && echo $(1))
-pick_tool = $(or $(call program_exists, i686-pc-msdosdjgpp-$(1)), $(1))
+program_exists = $(shell which $(1) 2> /dev/null)
+pick_tool = $(or $(call program_exists, i386-pc-msdosdjgpp-$(1)), $(1))
 
 CXX := $(or $(shell echo $$CXX), $(call pick_tool,g++))
 AR := $(or $(shell echo $$AR), $(call pick_tool,ar))
@@ -8,14 +8,9 @@ STRIP := $(or $(shell echo $$STRIP), $(call pick_tool,strip))
 
 CXXFLAGS += -pipe
 CXXFLAGS += -masm=intel
-CXXFLAGS += -MD -MP
-CXXFLAGS += -O3 -ffast-math
-#CXXFLAGS += -O0 -ffast-math
-#CXXFLAGS += -flto -flto-odr-type-merging
-CXXFLAGS += -ggdb3 -gsplit-dwarf
+CXXFLAGS += -flto -flto-odr-type-merging -flto-compression-level=0
+CXXFLAGS += -ggdb3 #-gsplit-dwarf
 CXXFLAGS += -floop-nest-optimize -fgraphite-identity
-#CXXFLAGS += -march=pentium3 -mfpmath=both
-CXXFLAGS += -march=pentium-mmx
 CXXFLAGS += -std=gnu++2a -fconcepts
 CXXFLAGS += -Wall -Wextra
 CXXFLAGS += -Wno-attributes
@@ -32,15 +27,29 @@ CXXFLAGS += -fnon-call-exceptions -fasynchronous-unwind-tables
 CXXFLAGS += -mcld
 CXXFLAGS += -mpreferred-stack-boundary=4
 CXXFLAGS += -fstrict-volatile-bitfields
-CXXFLAGS += -D_DEBUG
 #CXXFLAGS += -fopt-info-missed
 #CXXFLAGS += -fsanitize=undefined -fsanitize-undefined-trap-on-error
-#CXXFLAGS += -fsanitize=address
-
 #CXXFLAGS += -save-temps
 
+ifneq ($(ARCH),)
+    CXXFLAGS += -march=$(ARCH)
+else
+    #CXXFLAGS += -march=i386
+    #CXXFLAGS += -march=pentium
+    CXXFLAGS += -march=pentium-mmx
+    #CXXFLAGS += -march=k6-3
+    #CXXFLAGS += -march=pentium3 -mfpmath=both
+    #CXXFLAGS += -march=athlon-xp -mfpmath=both
+endif
+
+ifneq ($(DEBUG),0)
+    CXXFLAGS += -D_DEBUG -Og -ggdb3
+else
+    CXXFLAGS += -DNDEBUG -O3 -ffast-math
+endif
+
 #LDFLAGS += -Wl,-Map,bin/debug.map
-LDFLAGS += -Wno-attributes
+LDFLAGS += -Wno-attributes -Wl,--script=ldscripts/i386go32.x
 
 INCLUDE := -iquote include -Ilib/libjwdpmi/include
 LIBS := -Llib/libjwdpmi/bin -ljwdpmi
@@ -54,6 +63,7 @@ EXE := $(TARGETS:%=bin/%.exe)
 EXE_DEBUG := $(TARGETS:%=bin/%-debug.exe)
 ASM := $(TARGETS:%=obj/%.asm)
 ASMDUMP := $(TARGETS:%=bin/%.asm)
+DWO := $(TARGETS:%=obj/%.dwo)
 PREPROCESSED := $(TARGETS:%=obj/%.ii)
 
 ifneq ($(findstring vs,$(MAKECMDGOALS)),)
@@ -76,13 +86,13 @@ asm: $(ASM) $(ASMDUMP)
 	$(MAKE) asm -C lib/libjwdpmi/
 
 clean:
-	rm -f $(OBJ) $(DEP) $(ASM) $(PREPROCESSED) $(ASMDUMP) $(EXE) $(EXE_DEBUG)
+	rm -f $(OBJ) $(DEP) $(ASM) $(PREPROCESSED) $(ASMDUMP) $(DWO) $(EXE) $(EXE_DEBUG)
 	$(MAKE) clean -C lib/libjwdpmi/
 
-vs: tasks.vs.json launch.vs.json
-	@echo "void main(){}" > _temp.cpp
-	$(CXX) -dM -E $(CXXFLAGS) _temp.cpp > tools/gcc_defines.h
-	@rm _temp.*
+vs: tasks.vs.json launch.vs.json tools/gcc_defines.h
+
+tools/gcc_defines.h: makefile
+	@echo | $(CXX) $(CXXFLAGS) -dM -E -x c++ - > $@
 
 tasks.vs.json:
 	./tools/generate-vs-tasks.sh
@@ -108,8 +118,7 @@ bin/%-debug.exe: obj/%.o $(LIBJWDPMI) | bin
 #	stubedit $@ dpmi=hdpmi32.exe
 
 bin/%.exe: bin/%-debug.exe | bin
-	cp $< $@
-	$(STRIP) -S $@
+	$(STRIP) -w -R .gnu.lto_* -S $< -o $@
 	upx --best $@
 	touch $@
 
@@ -120,7 +129,7 @@ bin/%.asm: bin/%-debug.exe | bin
 	$(OBJDUMP) -M intel-mnemonic --insn-width=10 -C -w -d $< > $@
 
 obj/%.o: src/%.cpp | obj
-	$(CXX) $(CXXFLAGS) -o $@ -MF $(@:.o=.d) $(INCLUDE) -c $< $(PIPECMD)
+	$(CXX) $(CXXFLAGS) -o $@ -MP -MD $(INCLUDE) -c $< $(PIPECMD)
 
 obj/%.asm: src/%.cpp | obj
 	$(CXX) $(CXXFLAGS) -S -o $@ $(INCLUDE) -c $<

@@ -63,6 +63,7 @@
 #define __SIZE_TYPE__ unsigned int
 
 #define __float128 long double
+#define char8_t char
 #define __null 0
 
 #endif

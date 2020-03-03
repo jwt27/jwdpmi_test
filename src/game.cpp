@@ -17,7 +17,7 @@ void game()
 {
     using namespace std::chrono_literals;
     chrono::setup::setup_pit(true, 0x1000);
-    chrono::setup::setup_tsc(10000);
+    chrono::setup::setup_tsc(0x4000);
     using clock = jw::chrono::tsc;
 
     std::cout << "synchronizing timer...\n";
@@ -97,9 +97,9 @@ void game()
     vector2f player { 20,20 };
     vector2f last_player { player };
 
-    callback<bool(io::key_state_pair)> key_event { [&](auto k)
+    callback key_event { [&](io::key k, io::key_state state)
     {
-        if (k.first == io::key::c and k.second.is_down())
+        if (k == io::key::c and state.is_down())
         {
             collision ^= true;
             auto fill = collision ? video::text_char { ' ', 0xf, 4 } : video::text_char { ' ', 0xf, 1 };
@@ -109,7 +109,7 @@ void game()
             m.range({  5,45 }, { 75,5  }).fill_nowrap(fill);
             player.wrap({ 0,0 }, r.size());
         }
-        if (k.first == io::key::f and k.second.is_down()) friction ^= true;
+        if (k == io::key::f and state.is_down()) friction ^= true;
         return true;
     } };
     keyb.key_changed += key_event;
@@ -129,17 +129,17 @@ void game()
         if (keyb[key::down])  new_delta += vector2f::down();
         if (keyb[key::left])  new_delta += vector2f::left();
         if (keyb[key::right]) new_delta += vector2f::right();
-        if (keyb[key::space]) r.fill_nowrap(video::text_char{' ', 0, 2});
+        if (keyb[key::space]) r.fill_nowrap(video::text_char { ' ', 0, 2 });
         if (keyb[key::esc]) break;
 
         new_delta.clamp_magnitude(1);
         delta += new_delta * dt * 20;
 
-        r.nowrap(last_player) = video::text_char{' ', 7, 0};
+        r.nowrap(last_player) = video::text_char { ' ', 7, 0 };
         time_points.nowrap(last_player) = now + std::chrono::seconds { 10 };
-        for (auto y = 0; y < time_points.height(); ++y)
-            for (auto x = 0; x < time_points.width(); ++x)
-                if (time_points(x, y) <= now) r.nowrap(x, y) = video::text_char{' ', 0, 2};
+
+        for (auto t = time_points.cbegin(); t.valid(); ++t)
+            if (*t <= now) r.nowrap(t.position()) = video::text_char { ' ', 0, 2 };
 
         player += delta * dt * 10;
         if (collision)
@@ -149,11 +149,11 @@ void game()
             player.clamp(vector2i { 0,0 }, r.size());
         }
         player.wrap({ 0,0 }, r.size());
-        r.nowrap(player) = video::text_char{2, 0xf, 0};
+        r.nowrap(player) = video::text_char { 2, 0xf, 0 };
         last_player = player;
         if (friction) delta -= delta * dt * 2;
 
-        screen.range_abs({ 0,2 }, {80,50}).assign_nowrap(m.range_abs({ 0,2 }, { 80,50 }));
+        screen.range_abs({ 0,2 }, { 80,50 }).assign_nowrap(m.range_abs({ 0,2 }, { 80,50 }));
 
         using namespace jw::video::ansi;
         std::cout << set_cursor({ 0, 0 });
@@ -168,10 +168,12 @@ int jwdpmi_main(std::deque<std::string_view>)
 {
     using namespace jw::video::ansi;
 
+    if (not install_check())
+    {
+        std::cerr << "No ANSI driver detected.\n";
+        return 1;
+    }
     std::cout << set_80x50_mode();
-    std::cout << "Hello, World!" << std::endl;
-    if (not install_check()) std::cout << "No ";
-    std::cout << "ANSI driver detected.\n";
 
     game();
 
