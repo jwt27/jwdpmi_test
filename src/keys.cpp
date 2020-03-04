@@ -32,7 +32,7 @@ int jwdpmi_main(std::deque<std::string_view>)
         last_input_time = clock::now();
         switch (state)
         {
-        case key_state::up:     std::cout << "- ";  break;
+        case key_state::up:     std::cout << "- "; break;
         case key_state::down:   std::cout << "+ "; break;
         case key_state::repeat: std::cout << "* "; break;
         }
@@ -85,8 +85,8 @@ int jwdpmi_main(std::deque<std::string_view>)
     kb.auto_update(true);
 
     last_input_time = clock::now();
-    print_scancode_set();
     std::cout << "Event handler registered.\n";
+    print_scancode_set();
     std::cout << "Use F1 / F2 / F3 to select scancode set.\n";
     std::cout << "Press ESC for the next test, or wait 10 seconds to terminate." << std::endl;
     thread::yield_while([&] { return not pressed_esc and clock::now() < last_input_time + 10s; });
