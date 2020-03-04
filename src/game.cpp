@@ -1,5 +1,5 @@
 #include <iostream>
-#include <deque>
+#include <vector>
 #include <string_view>
 #include <jw/thread/thread.h>
 #include <jw/dpmi/memory.h>
@@ -164,7 +164,7 @@ void game()
     }
 }
 
-int jwdpmi_main(std::deque<std::string_view>)
+int jwdpmi_main(const std::vector<std::string_view>&)
 {
     using namespace jw::video::ansi;
 

@@ -1,12 +1,12 @@
 #include <iostream>
-#include <deque>
+#include <vector>
 #include <string_view>
 #include <jw/io/keyboard.h>
 #include <jw/thread/thread.h>
 #include <jw/chrono/chrono.h>
 #include <jw/video/ansi.h>
 
-int jwdpmi_main(std::deque<std::string_view>)
+int jwdpmi_main(const std::vector<std::string_view>&)
 {
     using namespace jw;
     using namespace jw::io;
