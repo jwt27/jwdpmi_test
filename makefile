@@ -77,6 +77,7 @@ make-target = $(1): bin/$(1).exe bin/$(1)-debug.exe bin/$(1).asm $$(FDD)/$(1).ex
 $(foreach target, $(TARGETS), $(eval $(call make-target,$(target))))
 
 .PHONY: all clean vs libjwdpmi asm preprocessed $(TARGETS)
+FORCE:
 
 all: $(TARGETS)
 
@@ -102,11 +103,11 @@ launch.vs.json:
 	./tools/generate-vs-launch.sh
 
 export CC CXX AR CXXFLAGS PIPECMD
-libjwdpmi:
+$(LIBJWDPMI): FORCE
 	cp -u lib/jwdpmi_config.h lib/libjwdpmi/jwdpmi_config.h
 	$(MAKE) -C lib/libjwdpmi/
 
-$(LIBJWDPMI): libjwdpmi
+libjwdpmi: $(LIBJWDPMI)
 
 bin:
 	mkdir -p bin
