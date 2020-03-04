@@ -4,6 +4,7 @@ pick_tool = $(or $(call program_exists, i386-pc-msdosdjgpp-$(1)), $(1))
 CXX := $(or $(shell echo $$CXX), $(call pick_tool,g++))
 AR := $(or $(shell echo $$AR), $(call pick_tool,ar))
 OBJDUMP := $(or $(shell echo $$OBJDUMP), $(call pick_tool,objdump))
+OBJCOPY := $(or $(shell echo $$OBJDUMP), $(call pick_tool,objcopy))
 STRIP := $(or $(shell echo $$STRIP), $(call pick_tool,strip))
 
 CXXFLAGS += -pipe
@@ -115,10 +116,11 @@ obj:
 
 bin/%-debug.exe: obj/%.o $(LIBJWDPMI) | bin
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $< $(LIBS) $(PIPECMD)
+	$(OBJCOPY) -w -R .gnu.lto_* $@
 #	stubedit $@ dpmi=hdpmi32.exe
 
 bin/%.exe: bin/%-debug.exe | bin
-	$(STRIP) -w -R .gnu.lto_* -S $< -o $@
+	$(STRIP) --strip-unneeded $< -o $@
 	upx --best $@
 	touch $@
 
