@@ -1,0 +1,47 @@
+SRC := $(addprefix src/,$(TARGETS:%=%.cpp))
+OBJ := $(SRC:%.cpp=%.o)
+DEP := $(SRC:%.cpp=%.d)
+ASM := $(SRC:%.cpp=%.asm)
+DWO := $(SRC:%.cpp=%.dwo)
+PREPROCESSED := $(SRC:%.cpp=%.ii)
+ASMDUMP := $(TARGETS:%=%.asm)
+EXE := $(TARGETS:%=%.exe)
+EXE_DEBUG := $(TARGETS:%=%-debug.exe)
+
+make-target = $(1): $(1).exe $(1)-debug.exe $(1).asm
+$(foreach target, $(TARGETS), $(eval $(call make-target,$(target))))
+
+all: $(TARGETS)
+
+.PRECIOUS: %.o
+.PHONY: all clean asm preprocessed $(TARGETS)
+
+preprocessed: $(PREPROCESSED)
+asm: $(ASM) $(ASMDUMP)
+
+clean:
+	rm -f $(OBJ) $(DEP) $(ASM) $(PREPROCESSED) $(ASMDUMP) $(DWO) $(EXE) $(EXE_DEBUG)
+
+%-debug.exe: src/%.o $(LDDEPS)
+	$(CXX) $(CXXFLAGS) -o $@ $< $(LDFLAGS) $(PIPECMD)
+#	$(OBJCOPY) -w -R .gnu.lto_* $@
+#	stubedit $@ dpmi=hdpmi32.exe
+
+%.exe: %-debug.exe
+	$(STRIP) --strip-unneeded $< -o $@
+	upx --best $@
+	touch $@
+
+%.asm: %-debug.exe
+	$(OBJDUMP) -M intel-mnemonic --insn-width=10 -C -w -d $< > $@
+
+%.o: %.cpp | $(CXXDEPS)
+	$(CXX) $(CXXFLAGS) -o $@ -MP -MD -c $< $(PIPECMD)
+
+%.asm: %.cpp | $(CXXDEPS)
+	$(CXX) $(CXXFLAGS) -S -o $@ -c $<
+
+%.ii: %.cpp | $(CXXDEPS)
+	$(CXX) $(CXXFLAGS) -E -o $@ -c $<
+
+-include $(DEP)

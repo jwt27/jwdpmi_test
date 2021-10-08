@@ -1,15 +1,6 @@
 #pragma once
 
 #ifdef __INTELLISENSE__
-
-#if (__cplusplus < 201703L)
-#pragma warning "Intellisense does not support C++17"
-#endif
-
-#if (__cplusplus < 201402L)
-#pragma error "Intellisense is not parsing in C++14 mode"
-#endif
-
 #undef __cplusplus
 #undef __cpp_attributes
 #undef __cpp_aggregate_nsdmi
@@ -54,16 +45,29 @@
 #undef __cpp_threadsafe_static_init
 #undef __cpp_aggregate_bases
 #undef __cpp_deduction_guides
+#undef __cpp_nontype_template_parameter_auto
+#undef __cpp_impl_three_way_comparison
+#undef __cpp_aggregate_paren_init
+#undef __cpp_designated_initializers
+#undef __cpp_static_assert
+#undef __cpp_impl_destroying_delete
+#undef __cpp_char8_t
+#undef __cpp_conditional_explicit
+#undef __cpp_constinit
+#undef __cpp_guaranteed_copy_elision
+#undef __cpp_concepts
+#undef __cpp_inheriting_constructors
+#undef __cpp_constexpr_dynamic_alloc
+#undef __cpp_unicode_characters
 #undef __EXCEPTIONS
 #undef __CHAR32_TYPE__
 
-#include "gcc_defines.h"
+#include <gcc_defines.h>
 
 #undef __SIZE_TYPE__
 #define __SIZE_TYPE__ unsigned int
 
 #define __float128 long double
-#define char8_t char
 #define __null 0
 
 #endif

@@ -3,3 +3,8 @@
 	url = https://github.com/jwt27/libjwdpmi.git
 	branch = experimental
 	ignore = dirty
+[submodule "lib/libjwutil"]
+	path = lib/libjwutil
+	url = https://github.com/jwt27/libjwutil.git
+	branch = master
+	ignore = dirty

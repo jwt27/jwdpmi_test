@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+
+readonly src=$(dirname $(realpath "$0"))
+source $src/lib/libjwdpmi/tools/jwbuild/jwbuild.sh
+
+# Declare submodules
+add_submodule lib/libjwutil
+add_submodule lib/libjwdpmi --with-jwutil=$(pwd)/lib/libjwutil --jwdpmi-config=$(pwd)/jwdpmi_config.h
+
+# Save Makefile variables
+save_vars CXX OBJDUMP OBJCOPY STRIP UPX CXXFLAGS LDFLAGS
+
+if test_option help; then
+	cat <<- EOF
+	Recognized options:
+	  --host=<...>           toolchain program prefix, eg. "i386-pc-msdosdjgpp"
+	  --debug=no             disable debug mode
+
+	Important variables:
+	  CXXFLAGS               compiler flags
+	  LDFLAGS                linker flags
+	  CXX                    compiler command      (if --host not specified)
+	  AR                     'ar' archiver command (if --host not specified)
+	  STRIP                  'strip' command       (if --host not specified)
+	  OBJDUMP                'objdump' command     (if --host not specified)
+	  OBJCOPY                'objcopy' command     (if --host not specified)
+	  UPX                    'upx' command
+	EOF
+	exit 1
+fi
+
+# Set CXXFLAGS/LDFLAGS
+
+unset more_cxxflags
+more_cxxflags+=' -std=gnu++20'
+more_cxxflags+=' -ggdb3'
+more_cxxflags+=' -floop-nest-optimize -fgraphite-identity'
+more_cxxflags+=' -Wall -Wextra'
+more_cxxflags+=' -Wattributes'
+more_cxxflags+=' -Wsuggest-override'
+more_cxxflags+=' -fnon-call-exceptions -fasynchronous-unwind-tables'
+more_cxxflags+=' -mcld'
+more_cxxflags+=' -mpreferred-stack-boundary=4'
+more_cxxflags+=' -fstrict-volatile-bitfields'
+more_cxxflags+=' -fexec-charset=IBM437'
+more_cxxflags+=' -ffunction-sections -fdata-sections'
+if test_option debug yes; then
+	more_cxxflags+=' -Og'
+else
+	more_cxxflags+=' -O3 -ffast-math'
+fi
+prepend CXXFLAGS "$more_cxxflags"
+
+unset more_ldflags
+more_ldflags+=' -Wl,--gc-sections'
+prepend LDFLAGS "$more_ldflags"
+
+# Set program variables
+
+host=${options[host]}
+if [[ -z "$host" ]]; then
+	for i in i{3..7}86-pc-msdosdjgpp; do
+		if have_program $i-g++; then
+			host=$i
+			break
+		fi
+	done
+fi
+options[host]=$host
+
+if [[ ! -z "$host" ]]; then
+	CXX="$host-g++"
+	AR="$host-ar"
+	OBJDUMP="$host-objdump"
+	OBJCOPY="$host-objcopy"
+	STRIP="$host-strip"
+fi
+
+CXX=${CXX-g++}
+AR=${AR-ar}
+OBJDUMP=${OBJDUMP-objdump}
+OBJCOPY=${OBJCOPY-objcopy}
+STRIP=${STRIP-strip}
+UPX=${UPX-upx}
+
+check_programs $CXX $AR $OBJDUMP $OBJCOPY $STRIP $UPX
+check_compiler
+
+# Configure submodules
+
+cp $src/lib/libjwdpmi/jwdpmi_config.h .
+configure_submodules
+
+# Generate config.status
+
+save_config
+
+# Create directories
+
+mkdir -p src/
+
+# Generate build files
+
+write_cxxflags
+echo $more_cxxflags >> cxxflags
+
+echo $more_ldflags >> ldflags
+write_ldflags
+
+write_cxxdeps
+write_lddeps
+
+TARGETS="$(cd $src/src/ && echo *.cpp | sed 's/.cpp//g')"
+echo $TARGETS | tr ' ' '\n' >> targets
+echo 'asm preprocessed' >> targets
+write_targets
+
+echo "TARGETS := $TARGETS" >> Makefile
+write_makefile
