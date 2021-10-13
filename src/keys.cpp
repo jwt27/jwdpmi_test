@@ -3,7 +3,7 @@
 #include <string_view>
 #include <jw/io/keyboard.h>
 #include <jw/thread/thread.h>
-#include <jw/chrono/chrono.h>
+#include <jw/chrono.h>
 #include <jw/video/ansi.h>
 
 int jwdpmi_main(const std::vector<std::string_view>&)
