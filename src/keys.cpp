@@ -2,7 +2,7 @@
 #include <vector>
 #include <string_view>
 #include <jw/io/keyboard.h>
-#include <jw/thread/thread.h>
+#include <jw/thread.h>
 #include <jw/chrono.h>
 #include <jw/video/ansi.h>
 
@@ -16,7 +16,7 @@ int jwdpmi_main(const std::vector<std::string_view>&)
     chrono::setup::setup_pit(true);
 
     bool pressed_esc { false };
-    bool use_ansi = true;// { install_check() };
+    bool use_ansi { install_check() };
     clock::time_point last_input_time;
 
     keyboard kb { };
@@ -61,9 +61,13 @@ int jwdpmi_main(const std::vector<std::string_view>&)
         char c = k.to_ascii(kb);
         std::cout << "\t ascii: ";
         std::cout << "0x" << std::hex << std::setfill('0') << std::setw(2) << static_cast<unsigned>(c) << ' ';
-        if      (c == '\n') std::cout << "\'\\n\'";
-        else if (c == '\b') std::cout << "\'\\b\'";
-        else                std::cout << "\'" << c << "\'";
+        switch (c)
+        {
+        case '\0': std::cout << "\'\\0\'"; break;
+        case '\n': std::cout << "\'\\n\'"; break;
+        case '\b': std::cout << "\'\\b\'"; break;
+        default: std::cout << "\'" << c << "\'"; break;
+        }
         std::cout << std::endl;
         int set = 0;
         if (state.is_up())
@@ -89,7 +93,7 @@ int jwdpmi_main(const std::vector<std::string_view>&)
     print_scancode_set();
     std::cout << "Use F1 / F2 / F3 to select scancode set.\n";
     std::cout << "Press ESC for the next test, or wait 10 seconds to terminate." << std::endl;
-    thread::yield_while([&] { return not pressed_esc and clock::now() < last_input_time + 10s; });
+    this_thread::yield_while([&] { return not pressed_esc and clock::now() < last_input_time + 10s; });
     if (not pressed_esc)
     {
         std::cerr << "Timeout.";
@@ -100,13 +104,13 @@ int jwdpmi_main(const std::vector<std::string_view>&)
     kb.redirect_cin();
     std::cin.exceptions(std::ios::badbit | std::ios::failbit | std::ios::eofbit);
 
-    thread::task t { [&]
+    thread t { [&]
     {
         std::string input { };
         do
         {
             std::cout << "> ";
-            std::cin >> input;
+            std::getline(std::cin, input);
             last_input_time = clock::now();
             std::cout << "< \"";
             for (unsigned char c : input)
@@ -125,14 +129,11 @@ int jwdpmi_main(const std::vector<std::string_view>&)
 
     std::cout << "Testing std::cin, type \"exit\" to end, or wait 30 seconds to terminate." << std::endl;
     last_input_time = clock::now();
-    t->start();
-    thread::yield_while([&] { return t->is_running() and clock::now() < last_input_time + 30s; });
-    if (t->is_running())
-    {
-        std::cerr << "Timeout.";
-        return 1;
-    }
-    t->await();
+    this_thread::yield_while([&] { return t.active() and clock::now() < last_input_time + 30s; });
+    bool timeout = t.active();
+    t.abort();
+    t.join();
 
+    if (timeout) return 1;
     return 0;
 }
