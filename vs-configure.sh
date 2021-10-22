@@ -111,7 +111,7 @@ echo Generating tasks.vs.json
 		f=${file%.*}
 		cat <<- EOF
 		    {
-		      "appliesTo": "src/$f.cpp",
+		      "appliesTo": "/src/$f.cpp",
 		      "type": "launch",
 		      "taskLabel": "build-$f",
 		      "contextType": "build",
@@ -123,7 +123,7 @@ echo Generating tasks.vs.json
 		      ]
 		    },
 		    {
-		      "appliesTo": "src/$f.cpp",
+		      "appliesTo": "/src/$f.cpp",
 		      "type": "launch",
 		      "taskLabel": "rebuild-$f",
 		      "contextType": "rebuild",
@@ -175,7 +175,7 @@ echo Generating tasks.vs.json
 	      ]
 	    },
 	    {
-	      "appliesTo": "src/*.cpp",
+	      "appliesTo": "/src/*.cpp",
 	      "type": "launch",
 	      "taskLabel": "clean-all-cpp",
 	      "contextType": "clean",
@@ -206,7 +206,7 @@ echo Generating launch.vs.json
 		    {
 		      "type": "cppdbg",
 		      "name": "$f (local VM)",
-		      "project": "src/$f.cpp",
+		      "project": "/src/$f.cpp",
 		      "cwd": "\${workspaceRoot}/tools/",
 		      "MIMode": "gdb",
 		      "miDebuggerPath": "\${workspaceRoot}/tools/gdb.cmd",
@@ -222,7 +222,7 @@ echo Generating launch.vs.json
 		    {
 		      "type": "cppdbg",
 		      "name": "$f (serial COM1)",
-		      "project": "src/$f.cpp",
+		      "project": "/src/$f.cpp",
 		      "cwd": "\${workspaceRoot}/tools/",
 		      "MIMode": "gdb",
 		      "miDebuggerPath": "\${workspaceRoot}/tools/gdb.cmd",
