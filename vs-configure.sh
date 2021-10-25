@@ -116,7 +116,7 @@ echo Generating tasks.vs.json
 		      "taskLabel": "build-$f",
 		      "contextType": "build",
 		      "workingDirectory": "\${workspaceRoot}",
-		      "env": { "build_config": "\${cpp.activeConfiguration}" },
+		      "env": { "build_config": "\${cpp.activeConfiguration}", "FDD": "/a" },
 		      "command": "\${workspaceRoot}/tools/make.cmd",
 		      "args": [
 		        "$f"
@@ -128,7 +128,7 @@ echo Generating tasks.vs.json
 		      "taskLabel": "rebuild-$f",
 		      "contextType": "rebuild",
 		      "workingDirectory": "\${workspaceRoot}",
-		      "env": { "build_config": "\${cpp.activeConfiguration}" },
+		      "env": { "build_config": "\${cpp.activeConfiguration}", "FDD": "/a" },
 		      "command": "\${workspaceRoot}/tools/make.cmd",
 		      "args": [
 		        "-B $f"
@@ -210,7 +210,7 @@ echo Generating launch.vs.json
 		      "cwd": "\${workspaceRoot}/tools/",
 		      "MIMode": "gdb",
 		      "miDebuggerPath": "\${workspaceRoot}/tools/gdb.cmd",
-		      "env": {"GDB": "$host-gdb"},
+		      "env": { "GDB": "$host-gdb" },
 		      "program": "\${workspaceRoot}/build/\${cpp.activeConfiguration}/$f-debug.exe",
 		      "setupCommands": [
 		        { "text": "set auto-load local-gdbinit" }
@@ -226,7 +226,7 @@ echo Generating launch.vs.json
 		      "cwd": "\${workspaceRoot}/tools/",
 		      "MIMode": "gdb",
 		      "miDebuggerPath": "\${workspaceRoot}/tools/gdb.cmd",
-		      "env": {"GDB": "$host-gdb"},
+		      "env": { "GDB": "$host-gdb" },
 		      "program": "\${workspaceRoot}/build/\${cpp.activeConfiguration}/$f-debug.exe",
 		      "setupCommands": [
 		        { "text": "set auto-load local-gdbinit" },

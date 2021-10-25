@@ -8,10 +8,21 @@ ASMDUMP := $(TARGETS:%=%.asm)
 EXE := $(TARGETS:%=%.exe)
 EXE_DEBUG := $(TARGETS:%=%-debug.exe)
 
-make-target = $(1): $(1).exe $(1)-debug.exe $(1).asm
-$(foreach target, $(TARGETS), $(eval $(call make-target,$(target))))
-
 all: $(TARGETS)
+
+make-target = $(1): $(1).exe $(1)-debug.exe $(1).asm
+
+ifneq ($(FDD),)                                                # if FDD is set
+  ifneq ($(shell test -d $(FDD) && echo exists),)              # if FDD exist
+    ifeq ($(filter $(MAKECMDGOALS),all),)                      # if not building all targets
+      ifeq ($(word 2,$(filter $(TARGETS),$(MAKECMDGOALS))),)   # if not multiple targets specified
+        make-target += $(FDD)/$(1).exe                         # copy compressed exe to floppy
+      endif
+    endif
+  endif
+endif
+
+$(foreach target, $(TARGETS), $(eval $(call make-target,$(target))))
 
 .PRECIOUS: %.o
 .PHONY: all clean asm preprocessed $(TARGETS)
@@ -24,13 +35,16 @@ clean:
 
 %-debug.exe: src/%.o $(LDDEPS)
 	$(CXX) $(CXXFLAGS) -o $@ $< $(LDFLAGS) $(PIPECMD)
-#	$(OBJCOPY) -w -R .gnu.lto_* $@
 #	stubedit $@ dpmi=hdpmi32.exe
 
 %.exe: %-debug.exe
 	$(STRIP) --strip-unneeded $< -o $@
 	upx --best $@
 	touch $@
+
+$(FDD)/%.exe: %.exe
+	-rm -f $(addprefix $(FDD)/,$(addsuffix .exe,$(TARGETS)))
+	-rsync -vu --inplace --progress $< $@
 
 %.asm: %-debug.exe
 	$(OBJDUMP) -M intel-mnemonic --insn-width=10 -C -w -d $< > $@
