@@ -1,44 +1,40 @@
-#include <iostream>
+﻿#include <iostream>
 #include <vector>
 #include <string_view>
-#include <jw/thread/thread.h>
+#include <set>
+#include <jw/io/gameport.h>
+#include <jw/thread.h>
 #include <jw/dpmi/memory.h>
 #include <jw/io/keyboard.h>
 #include <jw/vector.h>
 #include <jw/grid.h>
 #include <jw/video/pixel.h>
-#include <jw/io/gameport.h>
 #include <jw/video/ansi.h>
-#include <chrono>
 
 using namespace jw;
 
 void game()
 {
+    namespace color = jw::video::bios_colors;
     using namespace std::chrono_literals;
-    chrono::setup::setup_pit(true, 0x1000);
+    chrono::setup::setup_pit(true, 0x8000);
     chrono::setup::setup_tsc(0x4000);
     using clock = jw::chrono::tsc;
 
     std::cout << "synchronizing timer...\n";
-    thread::yield_for(2s);
+    this_thread::yield_for(2s);
 
     dpmi::mapped_dos_memory<video::text_char> screen_ptr { 80 * 50, dpmi::far_ptr16 { 0xB800, 0 } };
     grid<video::text_char> screen { 80, 50, screen_ptr.get_ptr() };
 
-    fixed_grid<video::text_char, 80, 50> m { };
-    m.fill(video::text_char { ' ', 0xf, 1 });
-
-    auto r = m.range({ 5,5 }, { 70,40 });
-    r.fill(video::text_char { ' ', 0, 2 });
-
-    grid_container<clock::time_point> time_points { r.size() };
+    screen.fill(video::text_char { ' ', color::white, color::black });
 
     io::keyboard keyb { };
     std::optional<io::gameport> joystick;
 
-    std::cout << "Calibrate joystick, press fire when done." << std::endl;
-    std::cout << "Press DEL to restart calibration, ESC to disable joystick." << std::endl;
+    std::cout << video::ansi::set_cursor({ 0, 20 });
+    std::cout << "    Calibrate joystick, press fire when done." << std::endl;
+    std::cout << "    Press DEL to restart calibration, ESC to disable joystick." << std::endl;
 
     struct no_joystick_please { };
     try
@@ -91,6 +87,14 @@ void game()
 
     do { keyb.update(); } while (keyb[io::key::esc]);
 
+    screen.fill(video::text_char { ' ', color::white, color::blue });
+    auto r = screen.range({ 5,5 }, { 70,40 });
+    r.fill(video::text_char { ' ', color::black, color::green });
+
+    fixed_grid<clock::time_point, 80, 50> mow_time;
+    auto compare = [&mow_time](const vector2i& a, const vector2i& b) { return mow_time.nowrap(a) < mow_time.nowrap(b); };
+    std::set<vector2i, decltype(compare)> mowed { compare };
+
     bool collision = false;
     bool friction = true;
     vector2f delta { 0,0 };
@@ -102,11 +106,11 @@ void game()
         if (k == io::key::c and state.is_down())
         {
             collision ^= true;
-            auto fill = collision ? video::text_char { ' ', 0xf, 4 } : video::text_char { ' ', 0xf, 1 };
-            m.range({  0,0  }, { 80,5  }).fill_nowrap(fill);
-            m.range({  0,5  }, {  5,45 }).fill_nowrap(fill);
-            m.range({ 75,5  }, {  5,45 }).fill_nowrap(fill);
-            m.range({  5,45 }, { 75,5  }).fill_nowrap(fill);
+            auto fill = collision ? video::text_char { ' ', color::white, color::red } : video::text_char { ' ', color::white, color::blue };
+            screen.range({  0,  0 }, { 80,  5 }).fill_nowrap(fill);
+            screen.range({  0,  5 }, {  5, 45 }).fill_nowrap(fill);
+            screen.range({ 75,  5 }, {  5, 45 }).fill_nowrap(fill);
+            screen.range({  5, 45 }, { 75,  5 }).fill_nowrap(fill);
             player.wrap({ 0,0 }, r.size());
         }
         if (k == io::key::f and state.is_down()) friction ^= true;
@@ -118,6 +122,12 @@ void game()
     while (true)
     {
         auto now = clock::now();
+        if (now <= last_now)
+        {
+            std::clog << "now=" << now.time_since_epoch().count()
+                      << ", last=" << last_now.time_since_epoch().count() << '\n';
+            continue;
+        }
         float dt = (now - last_now).count() / 1e9f;
         last_now = now;
 
@@ -135,11 +145,10 @@ void game()
         new_delta.clamp_magnitude(1);
         delta += new_delta * dt * 20;
 
-        r.nowrap(last_player) = video::text_char { ' ', 7, 0 };
-        time_points.nowrap(last_player) = now + std::chrono::seconds { 10 };
+        r.nowrap(last_player) = video::text_char { ' ', color::black, color::brown };
 
-        for (auto t = time_points.cbegin(); t.valid(); ++t)
-            if (*t <= now) r.nowrap(t.position()) = video::text_char { ' ', 0, 2 };
+        for (auto i = mowed.begin(); i != mowed.end() and mow_time.nowrap(*i) <= now; i = mowed.erase(i))
+            r.nowrap(*i) = video::text_char { ' ', color::black, color::green };
 
         player += delta * dt * 10;
         if (collision)
@@ -149,18 +158,20 @@ void game()
             player.clamp(vector2i { 0,0 }, r.size());
         }
         player.wrap({ 0,0 }, r.size());
-        r.nowrap(player) = video::text_char { 2, 0xf, 0 };
+        r.nowrap(player) = video::text_char { 2, color::white, color::brown };
         last_player = player;
         if (friction) delta -= delta * dt * 2;
 
-        screen.range_abs({ 0,2 }, { 80,50 }).assign_nowrap(m.range_abs({ 0,2 }, { 80,50 }));
+        mowed.erase(player);
+        mow_time.nowrap(player) = now + 10s;
+        mowed.emplace_hint(mowed.cend(), player);
 
         using namespace jw::video::ansi;
         std::cout << set_cursor({ 0, 0 });
-        std::cout << "FPS: " << clear_line() << 1 / dt << set_cursor({ 30, 0 }) << "delta=" << delta << "\n";
+        std::cout << "FPS: " << clear_line() << 1 / dt << set_cursor({ 15, 0 }) << "delta=" << delta << set_cursor({ 50, 0 }) << "pos=" << player << "\n";
         if (joystick) std::cout << "buttons=" << joystick->buttons() << set_cursor({ 30, 1 }) << "joy=" << clear_line() << joy << std::flush;
 
-        thread::yield();
+        this_thread::yield();
     }
 }
 

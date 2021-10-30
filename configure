@@ -42,6 +42,7 @@ more_cxxflags+=' -fnon-call-exceptions -fasynchronous-unwind-tables'
 more_cxxflags+=' -mcld'
 more_cxxflags+=' -mpreferred-stack-boundary=4'
 more_cxxflags+=' -fstrict-volatile-bitfields'
+more_cxxflags+=' -finput-charset=UTF-8'
 more_cxxflags+=' -fexec-charset=IBM437'
 more_cxxflags+=' -ffunction-sections -fdata-sections'
 if test_option debug yes; then
