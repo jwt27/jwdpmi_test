@@ -127,13 +127,17 @@ int jwdpmi_main(const std::vector<std::string_view>&)
         } while (input != "exit");
     } };
 
-    std::cout << "Testing std::cin, type \"exit\" to end, or wait 30 seconds to terminate." << std::endl;
+    std::cout << "Testing streambuf, type \"exit\" to end, or wait 30 seconds to terminate." << std::endl;
     last_input_time = clock::now();
     this_thread::yield_while([&] { return t.active() and clock::now() < last_input_time + 30s; });
     bool timeout = t.active();
     t.abort();
     t.join();
 
-    if (timeout) return 1;
+    if (timeout)
+    {
+        std::cerr << "Timeout.";
+        return 1;
+    }
     return 0;
 }
