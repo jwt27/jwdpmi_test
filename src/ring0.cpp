@@ -1,5 +1,5 @@
 #include <iostream>
-#include <vector>
+#include <span>
 #include <string_view>
 #include <jw/dpmi/ring0.h>
 #include <jw/dpmi/cpuid.h>
@@ -8,7 +8,7 @@
 
 using namespace jw;
 
-int jwdpmi_main(const std::vector<std::string_view>&)
+int jwdpmi_main(std::span<std::string_view>)
 {
     std::cout << "cpu: " << jw::dpmi::cpuid::vendor() << '\n';
     std::cout << "features: 0x" << std::hex << jw::dpmi::cpuid::leaf(1).edx << '\n';

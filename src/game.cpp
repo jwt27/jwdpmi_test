@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include <vector>
+#include <span>
 #include <string_view>
 #include <set>
 #include <jw/io/gameport.h>
@@ -175,7 +175,7 @@ void game()
     }
 }
 
-int jwdpmi_main(const std::vector<std::string_view>&)
+int jwdpmi_main(std::span<std::string_view>)
 {
     using namespace jw::video::ansi;
 
