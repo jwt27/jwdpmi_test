@@ -8,7 +8,7 @@ ASMDUMP := $(TARGETS:%=%.asm)
 EXE := $(TARGETS:%=%.exe)
 EXE_DEBUG := $(TARGETS:%=%-debug.exe)
 
-all: $(TARGETS)
+all:: $(TARGETS)
 
 make-target = $(1): $(1).exe $(1)-debug.exe $(1).asm
 
@@ -30,7 +30,7 @@ $(foreach target, $(TARGETS), $(eval $(call make-target,$(target))))
 preprocessed: $(PREPROCESSED)
 asm: $(ASM) $(ASMDUMP)
 
-clean:
+clean::
 	rm -f $(OBJ) $(DEP) $(ASM) $(PREPROCESSED) $(ASMDUMP) $(DWO) $(EXE) $(EXE_DEBUG)
 
 %-debug.exe: src/%.o $(LDDEPS)

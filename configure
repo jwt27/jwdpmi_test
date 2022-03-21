@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-readonly src=$(dirname $(realpath "$0"))
-source $src/lib/libjwdpmi/tools/jwbuild/jwbuild.sh
+source $(dirname "${BASH_SOURCE[0]}")/lib/libjwdpmi/tools/jwbuild/jwbuild.sh
 
 # Declare submodules
 add_submodule lib/libjwutil
@@ -10,6 +9,9 @@ add_submodule lib/libjwmidi --with-jwutil=$(pwd)/lib/libjwutil --jwmidi-config=$
 
 # Save Makefile variables
 save_vars CXX OBJDUMP OBJCOPY STRIP UPX CXXFLAGS LDFLAGS
+
+option_default help no
+option_default debug yes
 
 if test_option help; then
 	cat <<- EOF
@@ -46,7 +48,7 @@ more_cxxflags+=' -fstrict-volatile-bitfields'
 more_cxxflags+=' -finput-charset=UTF-8'
 more_cxxflags+=' -fexec-charset=IBM437'
 more_cxxflags+=' -ffunction-sections -fdata-sections'
-if test_option debug yes; then
+if test_option debug; then
 	more_cxxflags+=' -Og'
 else
 	more_cxxflags+=' -O3 -ffast-math'

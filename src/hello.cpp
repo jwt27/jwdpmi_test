@@ -1,9 +1,9 @@
-#include <iostream>
 #include <span>
 #include <string_view>
+#include <fmt/core.h>
 
 int jwdpmi_main(std::span<std::string_view>)
 {
-    std::cout << "Hello, World!\n";
+    fmt::print("Hello, World!");
     return 0;
 }
