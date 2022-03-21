@@ -39,21 +39,17 @@ for a in ${!archs[@]}; do
 		mkdir -p "$dir"
 		cd "$dir"
 		echo Configuring target $a-$c
-		"$src/configure" CXXFLAGS="${archs[$a]}" ${configs[$c]} --host=$host
+		"$src/configure" CXXFLAGS="${archs[$a]}" ${configs[$c]} --host=$host &
 		cd "$src"
 	done
 done
 
+wait
+
+echo Generating Visual Studio project files...
+
 mkdir -p .vs/
 
-echo Generating CMakeWorkspaceSettings.json
-cat <<-EOF > .vs/CMakeWorkspaceSettings.json
-{
-  "enableCMake": false
-}
-EOF
-
-echo Generating CppProperties.json
 {
 	cat <<-EOF
 	{
@@ -92,9 +88,8 @@ echo Generating CppProperties.json
 	  ]
 	}
 	EOF
-} > CppProperties.json
+} > CppProperties.json &
 
-echo Generating tasks.vs.json
 {
 	cat <<- EOF
 	{
@@ -196,9 +191,8 @@ echo Generating tasks.vs.json
 	  ]
 	}
 	EOF
-} > .vs/tasks.vs.json
+} > .vs/tasks.vs.json &
 
-echo Generating launch.vs.json
 {
 	cat <<- EOF
 	{
@@ -260,4 +254,15 @@ echo Generating launch.vs.json
 	  ]
 	}
 	EOF
-} > .vs/launch.vs.json
+} > .vs/launch.vs.json &
+
+{
+	cat <<-EOF
+	{
+	  "enableCMake": false
+	}
+	EOF
+} > .vs/CMakeWorkspaceSettings.json &
+
+wait
+echo Done.
