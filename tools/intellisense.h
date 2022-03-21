@@ -61,6 +61,7 @@
 #undef __cpp_unicode_characters
 #undef __EXCEPTIONS
 #undef __CHAR32_TYPE__
+#undef __clang__
 
 #include <gcc_defines.h>
 
