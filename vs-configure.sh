@@ -75,10 +75,10 @@ echo Generating CppProperties.json
 	      "includePath": [
 		EOF
 		for i in $(echo | $host-g++ $cxxflags -x c++ -E -Wp,-v - 2>&1 1> /dev/null | tr -d '\r' | grep '^ ' | sed 's/^ *//g'); do
-			echo "\"$(cygpath -w "$i")\""
-		done | tr '\\' '/' | sed 's/$/,/g'
+			echo "\"$(cygpath -m "$i")\""
+		done | sed 's/$/,/g'
 		cat <<-EOF
-	        "$(cygpath -w "$dir/tools" | tr '\\' '/')"
+	        "$(cygpath -m "$dir/tools")"
 	      ],
 	      "intelliSenseMode": "linux-gcc-x86",
 	      "forcedInclude": [
