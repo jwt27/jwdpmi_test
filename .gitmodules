@@ -8,3 +8,6 @@
 	url = https://github.com/jwt27/libjwutil.git
 	branch = master
 	ignore = dirty
+[submodule "lib/libjwmidi"]
+	path = lib/libjwmidi
+	url = https://github.com/jwt27/libjwmidi.git

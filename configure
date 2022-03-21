@@ -6,6 +6,7 @@ source $src/lib/libjwdpmi/tools/jwbuild/jwbuild.sh
 # Declare submodules
 add_submodule lib/libjwutil
 add_submodule lib/libjwdpmi --with-jwutil=$(pwd)/lib/libjwutil --jwdpmi-config=$(pwd)/jwdpmi_config.h
+add_submodule lib/libjwmidi --with-jwutil=$(pwd)/lib/libjwutil --jwmidi-config=$(pwd)/jwmidi_config.h --with-jwdpmi=$(pwd)/lib/libjwdpmi
 
 # Save Makefile variables
 save_vars CXX OBJDUMP OBJCOPY STRIP UPX CXXFLAGS LDFLAGS
@@ -53,7 +54,7 @@ fi
 prepend CXXFLAGS "$more_cxxflags"
 
 unset more_ldflags
-more_ldflags+=' -Wl,--gc-sections'
+more_ldflags+=' -Wl,--gc-sections -lwatt'
 prepend LDFLAGS "$more_ldflags"
 
 # Set program variables
@@ -90,6 +91,7 @@ check_compiler
 # Configure submodules
 
 cp $src/lib/libjwdpmi/jwdpmi_config.h .
+cp $src/lib/libjwmidi/jwmidi_config.h .
 configure_submodules
 
 # Generate config.status
@@ -118,3 +120,7 @@ write_targets
 
 echo "TARGETS := $TARGETS" >> Makefile
 write_makefile
+cat <<- EOF >> Makefile
+Makefile: $src/lib/libjwdpmi/jwdpmi_config.h
+Makefile: $src/lib/libjwmidi/jwmidi_config.h
+EOF

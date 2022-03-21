@@ -70,4 +70,7 @@
 #define __float128 long double
 #define __null 0
 
+#define __seg_fs volatile
+#define __seg_gs volatile
+
 #endif
