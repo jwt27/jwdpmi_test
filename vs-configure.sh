@@ -46,6 +46,13 @@ done
 
 mkdir -p .vs/
 
+echo Generating CMakeWorkspaceSettings.json
+cat <<-EOF > .vs/CMakeWorkspaceSettings.json
+{
+  "enableCMake": false
+}
+EOF
+
 echo Generating CppProperties.json
 {
 	cat <<-EOF
